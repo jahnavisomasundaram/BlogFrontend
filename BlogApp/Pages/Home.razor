@@ -1,0 +1,423 @@
+﻿@page "/"
+@using BlogApp.Models
+@using MudBlazor
+@using System.Text.Json
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+@inject UserData Data
+@inject HttpClient http
+
+<MudLayout>
+    <style>
+        .blur-background {
+            filter: blur(6px);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .overlay-blur {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backdrop-filter: blur(6px);
+            background-color: rgba(17, 17, 17, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+    </style>
+
+    <!-- NAVBAR -->
+    <MudAppBar Elevation="0"  Class="px-6" Style="background-color: #111;">
+        <MudText Typo="Typo.h5" Class="text-yellow-300 font-semibold">BlogNest</MudText>
+        <MudSpacer />
+        <MudText Class="text-yellow-200 hover:underline cursor-pointer mx-4">About</MudText>
+        <MudText Class="text-yellow-200 hover:underline cursor-pointer mx-4">Blog</MudText>
+        <MudText Class="text-yellow-200 hover:underline cursor-pointer mx-4">Contact</MudText>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Style="width: fit-content; background-color:white; color:black" OnClick="ShowCard">
+            Get Started
+        </MudButton>
+    </MudAppBar>
+
+    <!-- MAIN SECTION -->
+    <MudContainer MaxWidth="MaxWidth.False" Class="d-flex flex-row p-12" Style="background-color: #fefae0;">
+        <!-- Left Image -->
+        <div style="flex: 1;">
+            <img Src="images/BlogImage.png" Width="100%" Style="border-radius: 12px; margin-left:0px" />
+        </div>
+
+        <!-- Right Content -->
+        <div class="d-flex flex-column justify-content-center px-12" style="flex: 1;">
+            <MudText Typo="Typo.h3" Class="font-serif mb-4" Style="font-family:Georgia">Ignite Your Curiosity, Expand Your Mind</MudText>
+            @* <MudText Typo="Typo.subtitle1" Class="mb-6" Style="font-family:Georgia">Empowering the Educational Journey.</MudText> *@
+            <MudText Typo="Typo.subtitle1" Class="mb-6" Style="font-family:Georgia">Whether you're a passionate writer, a curious reader, or someone seeking to explore new perspectives, our platform offers a space to connect, learn, and grow. Join a community where stories spark conversations and thoughts take flight.</MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Style="width: fit-content; background-color: #111;" OnClick="ShowCard">
+                Start Reading
+            </MudButton>
+        </div>
+
+        @if(showCard)
+        {
+            <div class="overlay-blur">
+                <MudCard Style="width: 500px; padding: 70px; border-radius: 14px;position: relative;">
+                    <MudIconButton Icon="@Icons.Material.Filled.Close"
+                                   Color="Color.Default"
+                                   Style="position: absolute; top: 12px; right: 12px;"
+                                   OnClick="CloseCard" />
+                    <MudText Typo="Typo.h4" Class="d-flex justify-center mt-2" Style="margin-bottom:20px ; font-family:Georgia;">Welcome to BlogNest</MudText>
+                    <MudItem xs="12" Class="d-flex justify-center mt-2">
+                        <MudButton Variant="Variant.Outlined" Style="border-radius:18px  ;width: 100%" OnClick="SignInWithGoogle">
+                            <img src="Images/google.png" style="height: 20px; margin-right: 12px;" />
+                            Sign up with Google
+                        </MudButton>
+                    </MudItem>
+                    <MudItem xs="12" Class="d-flex justify-center mt-2">
+                        <MudButton Variant="Variant.Outlined" Style="border-radius:18px  ;width: 100%">
+                            <img src="Images/facebook.png" style="height: 20px; margin-right: 12px;" />
+                            Sign up with Facebook
+                        </MudButton>
+
+                    </MudItem>
+
+                    <MudItem xs="12" Class="d-flex justify-center mt-2">
+                        <MudButton Variant="Variant.Outlined" Style="border-radius:18px  ;width: 100%" OnClick="RegisterPage">
+                            <MudIcon Icon="@Icons.Material.Outlined.Mail" style="margin-right: 12px;"></MudIcon>
+                            Sign up with Email
+                        </MudButton>
+
+                    </MudItem>
+
+                    <MudText Class="mt-4" Typo="Typo.body2" Style="margin-left:70px">
+                        Already have an account? <MudLink
+                                                          Style="font-weight:400;" OnClick="ShowLogin">
+                            Sign In
+                        </MudLink>
+                    </MudText>
+
+                    <MudText Class="mt-4 d-flex justify-center text-center" Typo="Typo.body2" Style="align-content:center">
+                        Click “Sign up” to agree to BlogNest’s Terms of Service and acknowledge that BlogNest’s Privacy Policy applies to you.
+                    </MudText>
+
+                </MudCard>
+            </div>
+        }
+
+        @if (showLogin)
+        {
+            <div class="overlay-blur">
+                <MudCard Style="width: 500px; padding: 70px; border-radius: 14px;position: relative;">
+                    <MudIconButton Icon="@Icons.Material.Filled.Close"
+                                   Color="Color.Default"
+                                   Style="position: absolute; top: 12px; right: 12px;"
+                                   OnClick="CloseLogin" />
+                    <MudText Typo="Typo.h4" Class="d-flex justify-center mt-2" Style="margin-bottom:20px ; font-family:Georgia;">Login to BlogNest</MudText>
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="email"
+                                      Label="Email"
+                                      Variant="Variant.Outlined"
+                                      Required="true"
+                                      AdornmentIcon="@Icons.Material.Filled.Email"
+                                      AdornmentColor="Color.Primary"
+                                      Class="mb-4" />
+                    </MudItem>
+
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="password"
+                                      Label="Password"
+                                      Variant="Variant.Outlined"
+                                      InputType="InputType.Password"
+                                      Required="true"
+                                      AdornmentIcon="@Icons.Material.Filled.Lock"
+                                      AdornmentColor="Color.Primary"
+                                      FullWidth="true"
+                                      Class="mb-2" />
+                    </MudItem>
+
+                    <MudItem xs="12" Class="d-flex justify-center mt-2">
+                        <MudButton Variant="Variant.Outlined"
+                                   Size="Size.Medium"
+                                   Style="min-width:200px;"
+                                   OnClick="HandleLogin"
+                                   Class="py-4 px-6">
+                            Sign In
+                        </MudButton>
+                    </MudItem>
+
+                </MudCard>
+            </div>
+        }
+
+        @if (showRegister)
+        {
+            <div class="overlay-blur">
+                <MudCard Style="width: 500px; padding: 60px; border-radius: 14px;position: relative;">
+                    <MudIconButton Icon="@Icons.Material.Filled.Close"
+                                   Color="Color.Default"
+                                   Style="position: absolute; top: 12px; right: 12px;"
+                                   OnClick="CloseRegister" />
+                    <MudText Typo="Typo.h4" Class="d-flex justify-center mt-2" Style="margin-bottom:20px ; font-family:Georgia;">Create Account</MudText>
+                    <MudGrid Spacing="3">
+                        <MudItem xs="12">
+                            <MudTextField @bind-Value="regName"
+                                          Label="Username"
+                                          Variant="Variant.Outlined"
+                                          FullWidth="true"
+                                          Required="true" />
+                        </MudItem>
+
+                        <MudItem xs="12">
+                            <MudTextField @bind-Value="regEmail"
+                                          Label="Email Id"
+                                          Variant="Variant.Outlined"
+                                          InputType=InputType.Email
+                                          FullWidth="true"
+                                          Required="true" />
+                        </MudItem>
+
+                        <MudItem xs="12">
+                            <MudTextField @bind-Value="regPassword"
+                                          Label="Password"
+                                          Variant="Variant.Outlined"
+                                          InputType="@passwordInputType"
+                                          Adornment="Adornment.End"
+                                          AdornmentIcon="@visibilityIcon"
+                                          OnAdornmentClick="@handlevisibility"
+                                          FullWidth="true"
+                                          Required="true" />
+                        </MudItem>
+
+                        <MudItem xs="12">
+                            <MudTextField @bind-Value="regConfirmPassword"
+                                          Label="Confirm Password"
+                                          Variant="Variant.Outlined"
+                                          InputType="@passwordInputType1"
+                                          Adornment="Adornment.End"
+                                          AdornmentIcon="@visibilityIcon1"
+                                          OnAdornmentClick="@handlevisibility1"
+                                          FullWidth="true"
+                                          Required="true" />
+                        </MudItem>
+
+                        <MudItem xs="12" Class="d-flex justify-center">
+                            <MudText Color="Color.Error">@message</MudText>
+                        </MudItem>
+
+
+                        <MudItem xs="12" Class="d-flex justify-center mt-4">
+                            <MudButton Variant="Variant.Outlined"
+                                       Size="Size.Medium"
+                                       OnClick="HandleRegister"
+                                       Class="py-4 px-6">
+                                Create Account
+                            </MudButton>
+                        </MudItem>
+                    </MudGrid>
+
+                </MudCard>
+            </div>
+        }
+
+    </MudContainer>
+</MudLayout>
+
+@code{
+    public bool showCard = false;
+    public bool showLogin = false;
+    public bool showRegister = false;
+    public string email = "";
+    public string password = "";
+    public string regEmail="";
+    public string regPassword = "";
+    public string regConfirmPassword = "";
+    public string regName = "";
+    private string message = "";
+
+    private InputType passwordInputType = InputType.Password;
+    private InputType passwordInputType1 = InputType.Password;
+    private string visibilityIcon = Icons.Material.Filled.VisibilityOff;
+    private string visibilityIcon1 = Icons.Material.Filled.VisibilityOff;
+
+    public BlogData data = new BlogData();
+
+    private async Task handlevisibility()
+    {
+        if (passwordInputType == InputType.Password)
+        {
+            passwordInputType = InputType.Text;
+            visibilityIcon = Icons.Material.Filled.Visibility;
+        }
+        else
+        {
+            passwordInputType = InputType.Password;
+            visibilityIcon = Icons.Material.Filled.VisibilityOff;
+        }
+    }
+
+    private async Task handlevisibility1()
+    {
+        if (passwordInputType1 == InputType.Password)
+        {
+            passwordInputType1 = InputType.Text;
+            visibilityIcon1 = Icons.Material.Filled.Visibility;
+        }
+        else
+        {
+            passwordInputType1 = InputType.Password;
+            visibilityIcon1 = Icons.Material.Filled.VisibilityOff;
+        }
+    }
+
+    public async Task ShowCard(MouseEventArgs args)
+    {
+        showCard = true;
+    }
+
+    private async Task CloseCard(MouseEventArgs args)
+    {
+        showCard = false;
+    }
+
+    public async Task ShowLogin(MouseEventArgs args)
+    {
+        //showCard = false;
+        showLogin = true;
+    }
+
+    private async Task CloseLogin(MouseEventArgs args)
+    {
+        showLogin = false;
+    }
+
+    private async Task RegisterPage(MouseEventArgs args)
+    {
+        showRegister = true;
+    }
+
+    private async Task CloseRegister(MouseEventArgs args)
+    {
+        showRegister = false;
+    }
+
+    private async Task HandleRegister()
+    {
+        // var session = await SupabaseService.SignUpAsync(regEmail, regPassword);
+
+        // if (session?.User != null)
+        // {
+        //     Console.WriteLine("Session.User.Id: " + session.User.Id); ✅ DEBUG
+        //     Console.WriteLine("Session.User.Email: " + session.User.Email);
+        //     message = "Registered successfully!";
+        //     var user = session.User;
+        //     await SupabaseService.InsertUserIfNotExistsAsync(Guid.Parse(session.User.Id), session.User.Email, regName);
+
+        //     Console.WriteLine("✅ InsertUserIfNotExistsAsync called");
+        // }
+        // else
+        // {
+        //     message = "Signup failed!";
+        // }
+
+        // showRegister = false;
+        // showLogin = true;
+
+        // regEmail = "";
+        // regPassword = "";
+        // regConfirmPassword = "";
+        // regName = "";
+
+        if (regPassword != regConfirmPassword)
+        {
+            message = "Password doesn't match";
+            return;
+        }
+        var signUpPayload = new
+        {
+            email = regEmail,
+            password = regPassword
+        };
+
+
+        try
+        {
+            var response = await http.PostAsJsonAsync("https://localhost:7193/api/Auth/supabase-signup", signUpPayload);
+
+            if (response.IsSuccessStatusCode)
+            {
+                message = "✅ Registration successful!";
+                data = new BlogData
+                {
+                    UserName = regName,
+                    Email = regEmail,
+                    Password = regPassword,
+
+                };
+
+                // Save user to MongoDB
+                await http.PostAsJsonAsync($"https://localhost:7193/api/Auth/register", data);
+                
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                message = $"❌ Failed to register via Supabase: {error}";
+            }
+            
+        }
+
+        catch (Exception ex)
+        {
+            message = $"🚨 Unexpected error: {ex.Message}";
+        }
+   
+    }
+
+    private async Task HandleLogin()
+    {
+        var payload = new
+        {
+            email = email,
+            password = password
+        };
+
+        try
+        {
+            var response = await http.PostAsJsonAsync("https://localhost:7193/api/Auth/supabase-login", payload);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadFromJsonAsync<JsonElement>();
+                var jwt = json.GetProperty("token").GetString();
+
+                // Store the JWT in localStorage
+                await JS.InvokeVoidAsync("localStorage.setItem", "jwt", jwt);
+
+                message = "✅ Login successful!";
+                //Data.Email = email;
+                Navigation.NavigateTo("/mainpage");
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                message = $"❌ Login failed: {error}";
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"🚨 Unexpected error: {ex.Message}";
+        }
+    }
+
+    private void SignInWithGoogle()
+    {
+        var redirectUrl = Navigation.BaseUri + "auth-callback";
+        var authUrl = "https://hdpgwzowalhdevstidfx.supabase.co/auth/v1/authorize?provider=google&redirect_to=" + Uri.EscapeDataString(redirectUrl);
+
+        Navigation.NavigateTo(authUrl.ToString(), forceLoad: true);
+    }
+
+}
+
+
+   

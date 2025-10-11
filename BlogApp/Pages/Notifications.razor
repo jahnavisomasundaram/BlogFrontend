@@ -1,0 +1,116 @@
+﻿@page "/notificationpage"
+@using BlogApp.Models
+@using Microsoft.AspNetCore.SignalR.Client
+@using System.Text.Json
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@using System.Text.Json.Serialization
+@using System.Net.Http.Headers
+@inject ISnackbar Snackbar
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+@inject HttpClient http
+@inject UserData Data
+
+@code {
+    private DotNetObjectReference<Notifications>? dotNetRef;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        var jwt = await JS.InvokeAsync<string>("localStorage.getItem", "jwt");
+
+        if (string.IsNullOrWhiteSpace(jwt))
+        {
+            Navigation.NavigateTo("/", forceLoad: true);
+            return;
+        }
+
+        http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+
+        var claims = DecodeJwtPayload(jwt);
+
+        // Extract email and name from claims
+        if (claims.TryGetValue("email", out var emailObj))
+        {
+            Data.Email = emailObj?.ToString();
+        }
+    }
+
+    private Dictionary<string, object> DecodeJwtPayload(string jwt)
+    {
+        var parts = jwt.Split('.');
+        if (parts.Length != 3)
+            throw new ArgumentException("Invalid JWT format");
+
+        var payload = parts[1];
+        // Pad if necessary for Base64 decoding
+        int padding = 4 - (payload.Length % 4);
+        if (padding < 4)
+            payload += new string('=', padding);
+
+        var bytes = Convert.FromBase64String(payload);
+        var json = System.Text.Encoding.UTF8.GetString(bytes);
+
+        return JsonSerializer.Deserialize<Dictionary<string, object>>(json)
+               ?? new Dictionary<string, object>();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+
+            dotNetRef = DotNetObjectReference.Create(this);
+
+            var module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/notifications.js");
+            await module.InvokeVoidAsync("setDotNetReference", dotNetRef);
+            await module.InvokeVoidAsync("setDatabaseEventHandler", "blog_events");
+        }
+    }
+
+    [JSInvokable]
+    public async Task receiveRealTimeData(string payloadJson)
+    {
+        var blogEvent = JsonSerializer.Deserialize<BlogEvent>(payloadJson, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+
+        if (blogEvent != null &&
+            !string.IsNullOrWhiteSpace(Data.Email) &&
+            string.Equals(blogEvent.TargetEmail, Data.Email, StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine($"New Blog Notification for {Data.Email}: {blogEvent.BlogId} by {blogEvent.AuthorId}");
+            Snackbar.Add("New Blog from " + blogEvent.AuthorId);
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        dotNetRef?.Dispose();
+    }
+
+
+    public class BlogEvent
+    {
+        [JsonPropertyName("id")]
+        public string Id { get; set; }
+
+        [JsonPropertyName("blog_id")]
+        public string BlogId { get; set; }
+
+        [JsonPropertyName("author_id")]
+        public string AuthorId { get; set; }
+
+        [JsonPropertyName("action_id")]
+        public string ActionId { get; set; }
+
+        [JsonPropertyName("target_email")]
+        public string TargetEmail { get; set; }
+
+        [JsonPropertyName("timestamp")]
+        public DateTime? Timestamp { get; set; }
+    }
+
+}

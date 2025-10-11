@@ -1,0 +1,258 @@
+﻿@page "/mainpage"
+@layout GeneralLayout
+@using BlogApp.Models
+@using System.Text.Json
+@using System.Net;
+@using System.Net.Http.Headers
+@using BlogApp.Models
+@inject NavigationManager Navigation
+@inject UserData Data
+
+@inject HttpClient http
+
+
+
+
+<MudContainer Class="py-10" Style=" min-height:100vh;">
+
+    <!-- FEATURED POSTS -->
+
+    <MudText Typo="Typo.h5" Class="mb-6 font-bold">Featured Posts</MudText>
+    <MudGrid Class="mb-12" Spacing="3">
+
+        @foreach (var blog in publicBlogs.Take(3))
+
+        {
+
+            <MudItem xs="12" sm="6" md="4">
+
+                <MudCard Elevation="25" Class="rounded-lg blog-card" @onclick="@(() => Navigation.NavigateTo($"/blog/{blog.Id}"))">
+                    <MudCardMedia Image="@blog.ImageUrl" Height="200" />
+                    <MudCardContent>
+                        <MudChip T="string" Color="Color.Primary" Variant="Variant.Text" Class="font-semibold mb-2">Featured</MudChip>
+                        <MudText Typo="Typo.h6" Class="font-bold">@blog.Title</MudText>
+                        <MudText Typo="Typo.body2" Class="mt-2">@blog.Subtitle</MudText>
+                    </MudCardContent>
+                    <MudCardActions Class="px-4 pb-3">
+                        <MudStack Row="true" AlignItems="AlignItems.Center">
+                            <MudAvatar Size="Size.Small" >@blog.AuthorName[0]</MudAvatar>
+                            <MudText Typo="Typo.body2">@blog.AuthorName</MudText>
+                        </MudStack>
+                    </MudCardActions>
+                </MudCard>
+
+            </MudItem>
+
+        }
+
+    </MudGrid>
+
+    <!-- RECENT BLOG POSTS -->
+
+    <MudText Typo="Typo.h5" Class="mb-6 font-bold">Recent Blog Posts</MudText>
+    <MudGrid Spacing="3">
+
+        @foreach (var blog in publicBlogs)
+
+        {
+
+            <MudItem xs="12" sm="6" md="4">
+
+                <MudCard Elevation="25" Class="rounded-lg blog-card" @onclick="@(() => Navigation.NavigateTo($"/blog/{blog.Id}"))">
+                    <MudCardMedia Image="@blog.ImageUrl" Height="200" />
+                    <MudCardContent>
+                        <MudText Typo="Typo.h6" Class="font-bold">@blog.Title</MudText>
+                        <MudText Typo="Typo.body2" Class="mt-2 line-clamp-3">
+                            @blog.Subtitle
+                        </MudText>
+                        <MudText Typo="Typo.caption" >• @blog.CreatedAt.ToString("MMM dd, yyyy")
+                        </MudText>
+                    </MudCardContent>
+                    <MudCardActions Class="d-flex justify-space-between px-4 pb-3">
+                        <MudStack Row="true" AlignItems="AlignItems.Center">
+                            <MudAvatar Size="Size.Small" Color="Color.Secondary">@blog.AuthorName[0]</MudAvatar>
+                            <MudText Typo="Typo.body2">@blog.AuthorName</MudText>
+                        </MudStack>
+                        <MudStack Row="true" Spacing="3">
+                            <div style="display:flex; gap:14px; align-items:center;">
+
+                                <div style="display:flex; gap:4px; align-items:center;">
+
+                                    <MudIcon Icon="@Icons.Material.Filled.ThumbUp" />
+
+                                    <MudText Typo="Typo.body2">@blog.Likes?.Count</MudText>
+
+                                </div>
+
+
+
+                                <div style="display:flex; gap:4px; align-items:center;">
+
+                                    <MudIcon Icon="@Icons.Material.Filled.Comment" />
+
+                                    <MudText Typo="Typo.body2">@blog.Comments?.Count</MudText>
+
+                                </div>
+
+                            </div>
+                        </MudStack>
+                    </MudCardActions>
+                </MudCard>
+
+            </MudItem>
+
+        }
+
+    </MudGrid>
+</MudContainer>
+
+
+
+@code {
+
+    [Inject]
+    public IJSRuntime JS { get; set; } = default!;
+
+    private List<BlogEntry> allBlogs;
+
+    private List<string> followingEmails = new();
+
+
+    private List<BlogEntry> publicBlogs = new();
+    private string imageSrc;
+
+    private bool isLoading = true;
+
+    private string? hoveredBlogId = null; // For hover shadow effect
+    
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        var jwt = await JS.InvokeAsync<string>("localStorage.getItem", "jwt");
+
+        if (string.IsNullOrWhiteSpace(jwt))
+        {
+            Navigation.NavigateTo("/", forceLoad: true);
+            return;
+        }
+
+        http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+
+        var claims = DecodeJwtPayload(jwt);
+
+        // Extract email and name from claims
+        if (claims.TryGetValue("email", out var emailObj))
+        {
+            Data.Email = emailObj?.ToString();
+            Data.Name = await http.GetStringAsync($"https://localhost:7193/api/Auth/getuser?email={Data.Email}");
+        }
+
+        
+        if (string.IsNullOrWhiteSpace(Data.Name))
+        {
+            if (claims.TryGetValue("user_metadata", out var userMetaObj) && userMetaObj is JsonElement userMetaElement)
+            {
+                if (userMetaElement.TryGetProperty("name", out var nameElement))
+                {
+                    Data.Name = nameElement.GetString();
+                }
+            }
+        }
+
+
+        allBlogs = await http.GetFromJsonAsync<List<BlogEntry>>($"https://localhost:7193/api/Auth/blogs");
+
+        allBlogs = allBlogs
+       .OrderByDescending(b => b.CreatedAt)
+       .ToList();
+
+        var followingResponse = await http.GetAsync($"https://localhost:7193/api/Auth/following");
+        if (followingResponse.IsSuccessStatusCode)
+        {
+            followingEmails = await followingResponse.Content.ReadFromJsonAsync<List<string>>() ?? new List<string>();
+        }
+
+        publicBlogs = allBlogs.Where(b =>
+    b.Visibility == "Public" ||
+    (b.Visibility == "Private" && (followingEmails.Contains(b.AuthorEmail) || b.AuthorEmail == Data.Email))
+).ToList();
+
+        // try
+        // {
+        //     var response = await http.GetAsync("https:localhost:7193/api/Auth/validate");
+
+        //     if (!response.IsSuccessStatusCode)
+        //     {
+
+        //         await JS.InvokeVoidAsync("localStorage.removeItem", "jwt");
+        //         Navigation.NavigateTo("/", forceLoad: true);
+        //         return;
+        //     }
+
+        //     var json = await response.Content.ReadAsStringAsync();
+        //     var result = JsonSerializer.Deserialize<UserData>(json, new JsonSerializerOptions
+        //     {
+        //         PropertyNameCaseInsensitive = true
+        //     });
+
+        //     Data.Email = result?.Email;
+        //     Data.Name = result?.Name;
+        //     isLoading = false;
+
+        // }
+        // catch
+        // {
+
+        //     await JS.InvokeVoidAsync("localStorage.removeItem", "jwt");
+        //     Navigation.NavigateTo("/", forceLoad: true);
+        // }
+    }
+
+    private string GetImageSrc(byte[] imageBytes)
+    {
+        return $"data:image/png;base64,{Convert.ToBase64String(imageBytes)}";
+    }
+
+    private Dictionary<string, object> DecodeJwtPayload(string jwt)
+    {
+        var parts = jwt.Split('.');
+        if (parts.Length != 3)
+            throw new ArgumentException("Invalid JWT format");
+
+        var payload = parts[1];
+        // Pad if necessary for Base64 decoding
+        int padding = 4 - (payload.Length % 4);
+        if (padding < 4)
+            payload += new string('=', padding);
+
+        var bytes = Convert.FromBase64String(payload);
+        var json = System.Text.Encoding.UTF8.GetString(bytes);
+
+        return JsonSerializer.Deserialize<Dictionary<string, object>>(json)
+               ?? new Dictionary<string, object>();
+    }
+
+
+}
+
+<style>
+    .blog-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+    }
+
+        .blog-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        }
+
+    .line-clamp-3 {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+    }
+</style>

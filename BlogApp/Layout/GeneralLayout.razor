@@ -1,0 +1,251 @@
+﻿@using BlogApp.Models
+@using System.Net.Http.Headers
+@using System.Text.Json
+@inherits LayoutComponentBase
+@inject IJSRuntime JS
+
+@using System.Net.Http.Headers
+
+@inject IJSRuntime JS
+@inject UserData Data
+@inject NavigationManager Navigation
+@inject HttpClient http
+
+<MudThemeProvider Theme="@currentTheme" @bind-IsDarkMode="@isDarkMode" />
+<MudPopoverProvider />
+
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    @* UPDATED: The AppBar now contains all the common header elements *@
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@DrawerToggle" />
+        <MudText Typo="Typo.h5" Class="ml-4">BlogNest</MudText>
+        
+        <MudSpacer />
+
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudAutocomplete T="UserSearchResultDto" SearchFunc="SearchUsers"
+                ToStringFunc="@(u => u?.UserName)" MinCharacters="1" DebounceInterval="300" Clearable="true"
+                Variant="Variant.Filled" Dense="true" Placeholder="Search..."
+                Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+                ValueChanged="OnUserSelected" Class="rounded-lg" Style="width: 250px;" />
+
+            <Notifications />
+
+            <MudIconButton Icon="@themeIcon" OnClick="ToggleTheme" Color="Color.Inherit" Title="Toggle Theme" />
+            
+            <MudMenu AnchorOrigin="Origin.BottomRight">
+                <ActivatorContent>
+                    <MudAvatar>
+                        @(!string.IsNullOrEmpty(Data.Email) ? Data.Email[0].ToString().ToUpper() : "?")
+                    </MudAvatar>
+                </ActivatorContent>
+                <ChildContent>
+                    <MudMenuItem OnClick="@(() => Navigation.NavigateTo("/profile"))">Profile</MudMenuItem>
+                    <MudMenuItem>Settings</MudMenuItem>
+                    <MudDivider />
+                    <MudMenuItem OnClick="Logout">Logout</MudMenuItem>
+                </ChildContent>
+            </MudMenu>
+        </MudStack>
+    </MudAppBar>
+
+    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="1" Variant="@DrawerVariant.Persistent">
+        <MudNavMenu Class="mt-4">
+            <MudNavLink Href="/mainpage" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+            <MudNavLink Href="/blogpage" Icon="@Icons.Material.Filled.PostAdd">New Post</MudNavLink>
+            <MudNavLink  Icon="@Icons.Material.Filled.Category">Category</MudNavLink>
+        </MudNavMenu>
+    </MudDrawer>
+
+    @* SIMPLIFIED: The MainContent no longer contains the header *@
+    <MudMainContent>
+        <div class="pa-6">
+            @Body
+        </div>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool _drawerOpen = false;
+    private MudTheme currentTheme = new MudTheme();
+    private bool isDarkMode;
+    private string themeIcon => isDarkMode ? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode;
+
+    private void DrawerToggle() => _drawerOpen = !_drawerOpen;
+
+
+    private MudTheme AppTheme = new MudTheme()
+    {
+        PaletteLight = new PaletteLight()
+        {
+            Background = "#F5F5F5",
+            Surface = "#FFFFFF",
+            Primary = "#1976D2",
+            AppbarBackground = "#0D47A1",
+            DrawerBackground = "#1565C0",
+            TextPrimary = "#000000"
+        },
+        PaletteDark = new PaletteDark()
+        {
+            Black = "#27272f",
+            Background = "#32333d",
+            Surface = "#373740",
+            Primary = "#90CAF9",
+            AppbarBackground = "#212121",
+            DrawerBackground = "#27272f",
+            TextPrimary = "#FFFFFF"
+        }
+    };
+
+    private async Task ToggleTheme()
+    {
+        isDarkMode = !isDarkMode;
+        await JS.InvokeVoidAsync("localStorage.setItem", "isDarkMode", isDarkMode);
+        StateHasChanged();
+    }
+
+    private List<UserSearchResultDto> searchResults = new();
+    private UserSearchResultDto selectedUser;
+
+    private async Task<IEnumerable<UserSearchResultDto>> SearchUsers(string value, CancellationToken token)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return Array.Empty<UserSearchResultDto>();
+
+        try
+        {
+            var response = await http.GetFromJsonAsync<List<UserSearchResultDto>>(
+                $"https://localhost:7193/api/Auth/searchusers?query={value}", token);
+
+            return response ?? new List<UserSearchResultDto>();
+        }
+        catch (OperationCanceledException)
+        {
+            return Array.Empty<UserSearchResultDto>();
+        }
+    }
+
+    private void OnUserSelected(UserSearchResultDto user)
+    {
+        if (user != null)
+        {
+            Navigation.NavigateTo($"/profile1/{user.UserName}?email={user.Email}");
+        }
+    }
+
+    public class UserSearchResultDto
+    {
+        public string UserName { get; set; }
+        public string Email { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var jwt = await JS.InvokeAsync<string>("localStorage.getItem", "jwt");
+
+        if (string.IsNullOrWhiteSpace(jwt))
+        {
+            Navigation.NavigateTo("/", forceLoad: true);
+            return;
+        }
+
+        http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+
+        var claims = DecodeJwtPayload(jwt);
+
+        if (claims.TryGetValue("email", out var emailObj))
+        {
+            Data.Email = emailObj?.ToString();
+        }
+
+        if (claims.TryGetValue("name", out var nameObj))
+        {
+            Data.Name = nameObj?.ToString();
+        }
+
+        if (claims.TryGetValue("user_metadata", out var userMetaObj) && userMetaObj is JsonElement userMetaElement)
+        {
+            if (userMetaElement.TryGetProperty("name", out var nameElement))
+            {
+                Data.Name = nameElement.GetString();
+            }
+        }
+
+        var saved = await JS.InvokeAsync<string>("localStorage.getItem", "isDarkMode");
+        if (bool.TryParse(saved, out var savedMode))
+        {
+            isDarkMode = savedMode;
+        }
+        else
+        {
+            isDarkMode = false;
+        }
+
+        currentTheme = AppTheme;
+    }
+
+    private async Task BlogPage()
+    {
+        Navigation.NavigateTo("/blogpage");
+    }
+
+    private async Task Logout()
+    {
+        await JS.InvokeVoidAsync("localStorage.removeItem", "jwt");
+        http.DefaultRequestHeaders.Authorization = null;
+        Navigation.NavigateTo("/", forceLoad: true);
+    }
+
+    private void NavigateToMainPage()
+    {
+        Navigation.NavigateTo("/mainpage");
+    }
+
+    private Dictionary<string, object> DecodeJwtPayload(string jwt)
+    {
+        var parts = jwt.Split('.');
+        if (parts.Length != 3)
+            throw new ArgumentException("Invalid JWT format");
+
+        var payload = parts[1];
+        int padding = 4 - (payload.Length % 4);
+        if (padding < 4)
+            payload += new string('=', padding);
+
+        var bytes = Convert.FromBase64String(payload);
+        var json = System.Text.Encoding.UTF8.GetString(bytes);
+
+        return JsonSerializer.Deserialize<Dictionary<string, object>>(json)
+               ?? new Dictionary<string, object>();
+    }
+}
+
+<style>
+    .main-content-area {
+        padding: 2rem;
+    }
+
+    .mud-nav-link.active {
+        background-color: var(--mud-palette-primary);
+        color: white !important;
+        border-radius: 8px;
+    }
+
+        .mud-nav-link.active .mud-icon-root {
+            color: white !important;
+        }
+
+    .support-card {
+        background-color: var(--mud-palette-primary-lighten);
+        border-radius: 12px;
+        text-align: center;
+    }
+
+    .mud-drawer-content {
+        display: flex;
+        flex-direction: column;
+    }
+</style>

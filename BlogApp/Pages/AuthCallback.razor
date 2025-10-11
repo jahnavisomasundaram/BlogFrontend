@@ -1,0 +1,72 @@
+﻿@page "/auth-callback"
+@using BlogApp.Models
+@inject NavigationManager Navigation
+@* @inject SupabaseService SupabaseService *@
+@inject UserData Data
+@inject IJSRuntime JS
+@inject HttpClient Http
+
+<MudText Typo="Typo.h6" Class="mt-6 mx-4">Completing login...</MudText>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var uri = new Uri(Navigation.Uri);
+        var fragment = uri.Fragment; // This contains #access_token=...
+
+        if (!string.IsNullOrWhiteSpace(fragment))
+        {
+            var query = System.Web.HttpUtility.ParseQueryString(fragment.TrimStart('#'));
+            var accessToken = query["access_token"];
+            if (!string.IsNullOrEmpty(accessToken))
+            {
+                // Send it to your backend
+                var response = await Http.PostAsJsonAsync("https://localhost:7193/api/Auth/google-oauth", new { AccessToken = accessToken });
+
+                if (response.IsSuccessStatusCode)
+                {
+                    // Read and parse the response JSON
+                    var json = await response.Content.ReadAsStringAsync();
+                    var userInfo = System.Text.Json.JsonSerializer.Deserialize<loginModel>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    using var doc = System.Text.Json.JsonDocument.Parse(json);
+                    var jwt = doc.RootElement.GetProperty("token").GetString();
+
+                    // Store the JWT in localStorage
+                    await JS.InvokeVoidAsync("localStorage.setItem", "jwt", jwt);
+
+                    var userToStore = new BlogData
+                    {
+                        Email = userInfo.email,
+                        UserName = userInfo.name
+                    };
+                    Console.WriteLine(userToStore.Email);
+                    await Http.PostAsJsonAsync($"https://localhost:7193/api/Auth/register", userToStore);
+
+                    Data.Email = userInfo?.email; // Set your Data.Email property if needed
+                    Navigation.NavigateTo("/mainpage");
+                }
+                else
+                {
+                    Navigation.NavigateTo("/");
+                }
+            }
+        }
+    }
+
+    public class loginModel
+    {
+        public string email { get; set; }
+        public string id { get; set; }
+        public string name { get; set; }
+
+    }
+
+    public class GoogleUserResponse
+    {
+        public string sub { get; set; }       // Google user ID
+        public string name { get; set; }      // Full name
+        public string email { get; set; }     // Email
+        public string picture { get; set; }   // Profile picture (optional)
+    }
+}

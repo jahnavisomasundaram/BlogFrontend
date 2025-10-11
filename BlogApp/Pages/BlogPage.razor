@@ -1,0 +1,280 @@
+﻿@page "/blogpage"
+@using BlogApp.Models
+@using System.Net.Http.Headers
+@using System.Text.Json
+@inject NavigationManager Navigation
+@* @inject SupabaseService SupabaseService *@
+@inject UserData Data
+@layout GeneralLayout
+@inject HttpClient http
+@inject IJSRuntime JS
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="flex justify-center items-center my-10" >
+    <MudPaper Elevation="7" Class="p-8 rounded-xl w-full" Style="padding:20px">
+
+        <!-- Heading -->
+        <MudText Typo="Typo.h4" Class="mb-6 font-semibold text-gray-700">
+            Write Your Story
+        </MudText>
+
+        <!-- Title -->
+        <MudTextField @bind-Value="Title"
+                      Placeholder="Give your blog a catchy title"
+                      Variant="Variant.Outlined"
+                      FullWidth="true"
+                      Class="mb-3" />
+
+        <!-- Summary -->
+        <MudTextField @bind-Value="Subtitle"
+                      Placeholder="Add brief summary"
+                      Variant="Variant.Outlined"
+                      FullWidth="true"
+                      Class="mb-3" />
+
+        <!-- Textarea -->
+        <MudTextField @bind-Value="Content"
+                      Placeholder="Start writing your story here..."
+                      Variant="Variant.Outlined"
+                      FullWidth="true"
+                      Lines="6"
+                      Class="mb-4" />
+
+        <!-- Upload Image -->
+        <MudText Typo="Typo.subtitle2" Class="mb-2 text-gray-600">Upload Image</MudText>
+
+        <MudPaper Outlined="true" Class="p-6 border-dashed border-2 rounded-lg flex justify-center items-center text-center mb-4" Style="min-height:140px">
+            <div>
+                <div class="text-gray-500 mb-2" style="padding-top:15px">Drag and drop an image here or choose file</div>
+                @* <MudButton Variant="Variant.Outlined" Color="Color.Primary">
+                    Browse Files
+                </MudButton> *@
+                <InputFile OnChange="UploadImage" class="hidden" />
+            </div>
+        </MudPaper>
+
+        @if (!string.IsNullOrWhiteSpace(PreviewImageUrl))
+        {
+            <img src="@PreviewImageUrl" alt="Image Preview" style="max-height: 200px; border-radius: 10px; margin-bottom:15px;" />
+        }
+
+        <!-- Visibility -->
+        <MudRadioGroup T="string" @bind-Value="Visibility" Orientation="Orientation.Horizontal">
+            <MudRadio T="string" Value="@("Public")" Label="Public" />
+            <MudRadio T="string" Value="@("Private")" Label="Private" />
+        </MudRadioGroup>
+
+        <MudDatePicker @bind-Date="ScheduledPublishDate" Label="Schedule Publish Date" Required="true" />
+        <MudTimePicker Time="ScheduledPublishTime" TimeChanged="OnTimeChanged" Label="Schedule Publish Time" Required="true" />
+
+        <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="AddBlog" Class="rounded-full px-6">
+            Schedule Post
+        </MudButton>
+
+
+        <!-- Buttons -->
+        <div class="flex justify-between items-center mt-6">
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Default"
+                       Disabled="true"
+                       Class="rounded-full px-6">
+                Save as Draft
+            </MudButton>
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Success"
+                       OnClick="AddBlog"
+                       Class="rounded-full px-6">
+                Publish
+            </MudButton>
+        </div>
+
+    </MudPaper>
+</MudContainer>
+
+@code{
+    public string Title { get; set; } = "";
+    public string Subtitle { get; set; } = "";
+    public string Content { get; set; } = "";
+
+    //private byte[] ImageBytes;
+
+    //private string? UploadedImageUrl;
+
+
+    private IBrowserFile? SelectedImageFile;
+    private string? PreviewImageUrl;
+
+
+    private string? SuccessMessage = null;
+    private bool ShowSuccessMessage = false;
+
+    private string Visibility { get; set; } = "Public";
+
+    // public DateTime? ScheduledPublishDate { get; set; } = DateTime.Today;
+    // public TimeSpan? ScheduledPublishTime { get; set; } = TimeSpan.Zero;
+
+
+    // private DateTime? GetScheduledPublishDateTime() => ScheduledPublishDate?.Date + ScheduledPublishTime;
+
+    public DateTime? ScheduledPublishDate { get; set; } = DateTime.Today;
+    public TimeSpan? ScheduledPublishTime { get; set; } = TimeSpan.Zero;
+
+    private Task OnTimeChanged(TimeSpan? newTime)
+    {
+        ScheduledPublishTime = newTime;
+        return Task.CompletedTask;
+    }
+
+    private DateTime? GetScheduledPublishDateTime() => ScheduledPublishDate?.Date + ScheduledPublishTime;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var jwt = await JS.InvokeAsync<string>("localStorage.getItem", "jwt");
+
+        if (string.IsNullOrWhiteSpace(jwt))
+        {
+            Navigation.NavigateTo("/", forceLoad: true);
+            return;
+        }
+
+        http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+
+        
+    }
+
+    // private async Task OnFileSelected(InputFileChangeEventArgs e)
+    // {
+    //     var file = e.File;
+
+    //     if (file != null)
+    //     {
+    //         using var stream = file.OpenReadStream(maxAllowedSize: 10_000_000); limit: 10MB
+    //         using var ms = new MemoryStream();
+    //         await stream.CopyToAsync(ms);
+    //         ImageBytes = ms.ToArray();
+    //     }
+    // }
+
+    private async Task UploadImage(InputFileChangeEventArgs e)
+    {
+        SelectedImageFile = e.File;
+
+        using var stream = SelectedImageFile.OpenReadStream(5 * 1024 * 1024);
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms);
+        var base64 = Convert.ToBase64String(ms.ToArray());
+        PreviewImageUrl = $"data:{SelectedImageFile.ContentType};base64,{base64}";
+    }
+
+    private async Task AddBlog()
+    {
+        string? imageUrl = null;
+
+        if (SelectedImageFile != null)
+        {
+            using var content = new MultipartFormDataContent();
+            var fileContent = new StreamContent(SelectedImageFile.OpenReadStream(5 * 1024 * 1024));
+            content.Add(fileContent, "file", SelectedImageFile.Name);
+
+            var imageResponse = await http.PostAsync("https://localhost:7193/api/Auth/upload", content);
+
+            if (imageResponse.IsSuccessStatusCode)
+            {
+                imageUrl = await imageResponse.Content.ReadAsStringAsync();
+            }
+            else
+            {
+                Console.WriteLine("❌ Image upload failed.");
+                return;
+            }
+        }
+
+        var scheduledDateTime = GetScheduledPublishDateTime();
+
+
+        var blog = new
+        {
+            Title,
+            Subtitle,
+            Content,
+            Image = imageUrl,
+            Visibility = Visibility,
+            ScheduledPublishDateTime = scheduledDateTime
+
+        };
+
+        var response = await http.PostAsJsonAsync("https://localhost:7193/api/Auth/create-blog", blog);
+
+
+        Console.WriteLine($"Visibility sent: {Visibility}");
+
+
+        if (response.IsSuccessStatusCode)
+        {
+
+            // var notifyPayload = new
+            // {
+            //     AuthorEmail = Data.Email,
+            //     AuthorUserName = Data.Name,
+            //     Title = Title
+            // };
+
+            // var notifyResponse = await http.PostAsJsonAsync("https:localhost:7193/Blog/postblog", notifyPayload);
+
+            // if (!notifyResponse.IsSuccessStatusCode)
+            // {
+            //     Console.WriteLine("⚠️ Notification send failed.");
+            // }
+
+            var createdBlog = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+            var blogId = createdBlog?["blogId"]?.ToString();
+
+            string blogUrl = $"https://localhost:7157/blog/{blogId}";
+
+            var followersResponse = await http.GetFromJsonAsync<List<string>>($"https://localhost:7193/api/Auth/get-followers?authorEmail={Data.Email}");
+
+            if (followersResponse != null && followersResponse.Count > 0)
+            {
+                foreach (var followerEmail in followersResponse)
+                {
+                    await JS.InvokeVoidAsync(
+                        "sendBlogNotification",
+                        followerEmail,
+                        Title,
+                        Data.Email,
+                        blogUrl
+                    );
+
+                    //await JS.InvokeVoidAsync("sendNotification", followerEmail, blog.Title, null, Data.Email);
+
+                }
+                Console.WriteLine("📧 Blog notifications sent via EmailJS.");
+            }
+            else
+            {
+                Console.WriteLine("ℹ No followers to notify.");
+            }
+
+            Console.WriteLine("✅ Uploaded with image.");
+            Title = "";
+            Subtitle = "";
+            Content = "";
+
+            SuccessMessage = "✅ Blog published successfully!";
+            ShowSuccessMessage = true;
+            PreviewImageUrl = "";
+            SelectedImageFile = null;
+
+            await Task.Delay(3000);
+            ShowSuccessMessage = false;
+        }
+        else
+        {
+            Console.WriteLine("❌ Failed.");
+        }
+        
+    }
+    
+}
+

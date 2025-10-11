@@ -1,0 +1,157 @@
+﻿@page "/editblog/{Id}"
+@using System.Net.Http.Headers
+@using BlogApp.Models
+@inject HttpClient Http
+@layout GeneralLayout
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="my-6">
+    <MudPaper Elevation="10" Class="p-6" Style="background:#fffceb; border-radius:12px;padding:20px">
+
+        <MudText Typo="Typo.h4" Class="text-gray-700 mb-4">📝 Edit Your Story</MudText>
+
+        <MudTextField @bind-Value="blog.Title"
+                      Placeholder="Title"
+                      Variant="Variant.Outlined"
+                      Class="mb-3"
+                      FullWidth="true"
+                      Lines="1"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Title" />
+
+        <MudTextField @bind-Value="blog.Subtitle"
+                      Placeholder="Subtitle"
+                      Variant="Variant.Outlined"
+                      Class="mb-3"
+                      FullWidth="true"
+                      Lines="1"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Subject" />
+
+        <MudTextField @bind-Value="blog.Content"
+                      Placeholder="Tell your story..."
+                      Variant="Variant.Outlined"
+                      Class="mb-4"
+                      FullWidth="true"
+                      Lines="10" />
+
+        <MudDivider Class="my-4" />
+
+        <MudRadioGroup T="string" @bind-Value="blog.Visibility" Orientation="Orientation.Horizontal">
+            <MudRadio T="string" Value="@("Public")" Label="Public" />
+            <MudRadio T="string" Value="@("Private")" Label="Private" />
+        </MudRadioGroup>
+
+        @* <MudText Typo="Typo.subtitle1" Class="mb-2 text-gray-600">Upload Image</MudText> *@
+
+        @* <MudGrid>
+            <MudItem xs="12" sm="6" md="12">
+                <InputFile OnChange="UploadImage" />
+            </MudItem>
+            <MudItem xs="12" sm="6" md="12">
+                @if (!string.IsNullOrWhiteSpace(UploadedImageUrl))
+                {
+                    <img src="@UploadedImageUrl" alt="Image Preview" style="max-height: 220px; border-radius: 10px; margin-top: 10px;" />
+                }
+            </MudItem>
+        </MudGrid> *@
+
+        <InputFile OnChange="UploadImage" />
+        @if (!string.IsNullOrWhiteSpace(blog.ImageUrl))
+        {
+            <img src="@blog.ImageUrl" style="max-height: 220px; border-radius: 10px;" />
+        }
+
+
+        <MudDivider Class="my-4" />
+
+        @* @if (ShowSuccessMessage && !string.IsNullOrWhiteSpace(SuccessMessage))
+        {
+            <MudAlert Severity="Severity.Success" Elevation="0" Variant="Variant.Filled" Dense="true" Class="mb-2">
+                @SuccessMessage
+            </MudAlert>
+        } *@
+
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Success"
+                   OnClick="UpdateBlog"
+                   Style="margin-top:10px">
+            Update✨
+        </MudButton>
+
+    </MudPaper>
+</MudContainer>
+
+@code {
+    [Parameter] public string Id { get; set; }
+
+    private BlogEntry blog = new();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var token = await JS.InvokeAsync<string>("localStorage.getItem", "jwt");
+            Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            blog = await Http.GetFromJsonAsync<BlogEntry>($"https://localhost:7193/api/Auth/blog/{Id}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("❌ Error fetching blog: " + ex.Message);
+        }
+
+        isLoading = false;
+    }
+
+    private async Task UploadImage(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file == null) return;
+
+        try
+        {
+            var content = new MultipartFormDataContent();
+            var stream = file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024); // 10MB max
+            content.Add(new StreamContent(stream), "file", file.Name);
+
+            var uploadResponse = await Http.PostAsync("https://localhost:7193/api/Auth/upload", content);
+            if (uploadResponse.IsSuccessStatusCode)
+            {
+                var imageUrl = await uploadResponse.Content.ReadAsStringAsync();
+                blog.ImageUrl = imageUrl.Trim('"'); // remove quotes from JSON string
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("❌ Error uploading image: " + ex.Message);
+        }
+    }
+
+
+    private async Task UpdateBlog()
+    {
+        try
+        {
+            var response = await Http.PutAsJsonAsync($"https://localhost:7193/api/Auth/edit-blog/{Id}", blog);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("✅ Blog updated.");
+                Navigation.NavigateTo("/profile");
+            }
+            else
+            {
+                Console.WriteLine("❌ Update failed.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("❌ Exception: " + ex.Message);
+        }
+    }
+}

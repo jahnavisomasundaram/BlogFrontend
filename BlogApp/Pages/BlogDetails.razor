@@ -1,0 +1,417 @@
+﻿@page "/blog/{id}"
+@using BlogApp.Models
+@using System.Net.Http.Headers
+@using System.Text.Json
+@using System.Text;
+
+@inject NavigationManager Navigation
+@inject UserData Data
+@layout GeneralLayout
+@inject HttpClient http
+@inject IJSRuntime JS
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="my-8">
+
+    @if (blog == null)
+    {
+        <MudText Typo="Typo.h6">Loading...</MudText>
+    }
+    else
+    {
+        <MudCard Class="rounded-2xl overflow-hidden shadow-md">
+
+            <MudCardContent Class="p-6" Style="padding:25px">
+                <!-- Title -->
+                <MudText Typo="Typo.h4" Class="font-bold mb-3">
+                    @blog.Title
+                </MudText>
+
+                <!-- Author & Date -->
+                <MudGrid Class="flex-nowrap" Spacing="2">
+                    <!-- Avatar -->
+                    <MudItem Class="d-flex align-center">
+                        <MudAvatar Size="Size.Medium">
+                            @(!string.IsNullOrEmpty(blog.AuthorName) ? blog.AuthorName[0].ToString().ToUpper() : "?")
+                        </MudAvatar>
+                    </MudItem>
+
+                    <!-- Name + Date stacked -->
+                    <MudItem Class="d-flex flex-column justify-center">
+                        @if (blog.AuthorName == Data.Name)
+                        {
+                            <MudLink Href="/profile" Style="text-decoration: none; color: inherit;">
+                                <MudText  Typo="Typo.subtitle2" Style="cursor: pointer; transition: color 0.2s;">@blog.AuthorName</MudText> 
+                            </MudLink>
+                        }
+                        else
+                        {
+
+                            <MudLink Href="@($"/profile1/{blog.AuthorName}?email={blog.AuthorEmail}")" Style="text-decoration: none; color: inherit;">
+                                <MudText Typo="Typo.subtitle2" Style="cursor: pointer; transition: color 0.2s;">@blog.AuthorName</MudText> 
+                            </MudLink>
+                        }
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">
+                            @blog.CreatedAt.ToString("MMMM dd, yyyy")
+                        </MudText>
+                    </MudItem>
+                    <MudItem>
+                        @if (blog.Visibility == "Private")
+                        {
+                            <MudTooltip Text="Private blog">
+                                <MudIcon Icon="@Icons.Material.Filled.Lock" Size="Size.Small" Style="margin-left:30px" />
+                            </MudTooltip>
+                        }
+                    </MudItem>
+                </MudGrid>
+
+
+                <!-- Hero Image -->
+                @if (!string.IsNullOrEmpty(blog.ImageUrl))
+                {
+                    <img src="@blog.ImageUrl"
+                         style="width:1000px ; height: 400px;border-radius: 12px; margin-top:10px;margin-bottom:10px" />
+
+                }
+
+                <!-- Content -->
+                <MudText Typo="Typo.body1" Style="white-space: pre-line;">
+                    @blog.Content
+                </MudText>
+
+                <!-- Actions Row -->
+
+                <MudIconButton Icon="@GetLikeIcon()" OnClick="@(() => LikeBlog(blog.Id))" />
+                <span>@blog.Likes?.Count</span>
+
+                <MudIconButton Icon="@GetDislikeIcon()" OnClick="@(() => DislikeBlog(blog.Id))" />
+                <span>@blog.Dislikes?.Count</span>
+
+                <MudIconButton Icon="@Icons.Material.Filled.Comment" OnClick="@(() => showComments = !showComments)" />
+                <span>@(blog.Comments?.Count ?? 0)</span>
+
+            </MudCardContent>
+        </MudCard>
+
+        <!-- Comments Section -->
+        @if (showComments)
+        {
+            <MudDivider Class="my-6" />
+
+            <!-- Comments Header -->
+            <MudText Typo="Typo.h5" Class="mb-6" Style="font-weight: 600; color: #1a1a1a;">
+                Comments
+            </MudText>
+
+            
+            <!-- Add Comment -->
+            <div style="position: relative; width: 100%;">
+                <!-- Comment box -->
+                <textarea @bind="newComment"
+                          @oninput="OnCommentInput"
+                          placeholder="Add a comment..."
+                          style="width: 100%; min-height: 60px; padding: 8px; border-radius: 6px; border: 1px solid #ccc; resize: vertical;">
+                            </textarea>
+
+                <!-- Mention dropdown -->
+                @if (showMentionDropdown)
+                {
+                    <div style="position: absolute; bottom: 70px; left: 0;
+                                                        width: 100%; background:white; border:1px solid gray;
+                                                        border-radius:4px; z-index:1000; max-height:150px; overflow-y:auto;">
+                        @foreach (var user in mentionSuggestions)
+                        {
+                            <div style="padding: 6px; cursor: pointer;"
+                                 @onclick="() => SelectMention(user)"
+                                 onmouseover="this.style.backgroundColor='#f0f0f0'"
+                                 onmouseout="this.style.backgroundColor='white'">
+                                @user.UserName
+                            </div>
+                        }
+                    </div>
+                }
+
+                <!-- Post button -->
+                 <div class="mt-3 d-flex justify-end">
+                    <button @onclick="PostComment"
+                            style="margin-top: 8px; padding: 6px 12px; border:none; border-radius:6px; background:#1976d2; color:white; cursor:pointer;">
+                        @(isPosting ? "Posting..." : "Post Comment")
+                    </button>
+                 </div>
+
+                
+            </div>
+
+            <!-- Comments List -->
+            @if (blog.Comments?.Count > 0)
+            {
+                <div class="space-y-6">
+                    @foreach (var comment in blog.Comments.OrderByDescending(c => c.Timestamp))
+                    {
+                        <div class="comment-item" style="display: flex; gap: 16px; align-items: flex-start;">
+                            <!-- Avatar -->
+                            <MudAvatar Size="Size.Medium"
+                                       Style="color: white; font-weight: 500; min-width: 40px;">
+                                @(!string.IsNullOrEmpty(comment.AuthorEmail) ? comment.AuthorEmail[0].ToString().ToUpper() : "?")
+                            </MudAvatar>
+
+                            <!-- Comment Content -->
+                            <div style="flex: 1; min-width: 0;">
+                                <!-- Author and Date -->
+                                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
+                                    <MudText Typo="Typo.subtitle2" Style="font-weight: 600; color: #1a1a1a;">
+                                        @GetDisplayName(comment.AuthorEmail)
+                                    </MudText>
+                                    <MudText Typo="Typo.caption" Style="color: #6b7280;">
+                                        @comment.Timestamp.ToLocalTime().ToString("MMMM dd, yyyy")
+                                    </MudText>
+                                </div>
+
+                                <!-- Comment Text -->
+                                <MudText Typo="Typo.body2" Style="color: #374151; line-height: 1.6;">
+                                    @((MarkupString)FormatComment(comment.Text))
+                                </MudText>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-8">
+                    <MudText Typo="Typo.body2" Style="color: #9ca3af; font-style: italic;">
+                        No comments yet. Be the first to share your thoughts!
+                    </MudText>
+                </div>
+            }
+        }
+
+    <style>
+        .comment-input .mud-input-root {
+            border-radius: 12px !important;
+        }
+
+            .comment-input .mud-input-root-outlined .mud-input-root-outlined-border {
+                border-color: #e5e7eb !important;
+            }
+
+            .comment-input .mud-input-root-outlined:hover .mud-input-root-outlined-border {
+                border-color: #d1d5db !important;
+            }
+
+            .comment-input .mud-input-root-outlined.mud-input-root-focused .mud-input-root-outlined-border {
+                border-color: #4285f4 !important;
+                border-width: 2px !important;
+            }
+
+            .comment-item {
+                padding-bottom: 24px;
+                border-bottom: 1px solid #f3f4f6;
+            }
+
+                .comment-item:last-child {
+                    border-bottom: none;
+                    padding-bottom: 0;
+                }
+
+            .space-y-6 > * + * {
+                margin-top: 24px;
+            }
+        </style>
+    }
+</MudContainer>
+
+
+@code {
+    [Parameter]
+    public string id { get; set; }
+
+    private BlogEntry blog;
+
+    string newComment = "";
+    bool isPosting = false;
+
+    bool showComments = false;
+
+    private string GetDisplayName(string email)
+    {
+        if (string.IsNullOrEmpty(email))
+            return "Anonymous";
+
+        // Extract name part before @ symbol
+        var namePart = email.Split('@')[0];
+
+        // Convert to display format (e.g., john.smith -> John Smith)
+        return System.Globalization.CultureInfo.CurrentCulture.TextInfo
+        .ToTitleCase(namePart.Replace(".", " ").Replace("_", " ").Replace("-", " "));
+    }
+
+
+    private List<UserSearchResultDto> mentionSuggestions = new();
+    private bool showMentionDropdown = false;
+
+    private List<string> mentionedEmails = new();
+
+    private async Task OnCommentInput(ChangeEventArgs args)
+    {
+        newComment = args.Value?.ToString() ?? "";
+
+        int atIndex = newComment.LastIndexOf('@');
+        if (atIndex >= 0)
+        {
+            var query = newComment[(atIndex + 1)..];
+            if (!string.IsNullOrWhiteSpace(query))
+            {
+                // 🔥 Call backend to fetch users
+                var users = await http.GetFromJsonAsync<List<UserSearchResultDto>>(
+                    $"https://localhost:7193/api/Auth/searchusers?query={query}"
+                );
+
+                mentionSuggestions = users ?? new List<UserSearchResultDto>();
+                showMentionDropdown = mentionSuggestions.Any();
+            }
+            else
+            {
+                showMentionDropdown = false;
+            }
+        }
+        else
+        {
+            showMentionDropdown = false;
+        }
+    }
+
+    private void SelectMention(UserSearchResultDto user)
+    {
+        int atIndex = newComment.LastIndexOf('@');
+        if (atIndex >= 0)
+        {
+            var before = newComment[..atIndex];
+            newComment = before + "@" + user.UserName + " ";
+        }
+
+        if (!mentionedEmails.Contains(user.Email))
+            mentionedEmails.Add(user.Email);
+
+        showMentionDropdown = false;
+    }
+
+    public class UserSearchResultDto
+    {
+        public string UserName { get; set; } //corresponds to user.UserName in BlogData
+        public string Email { get; set; }
+    }
+
+    private string FormatComment(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return "";
+
+        // Highlight all words starting with @
+        return System.Text.RegularExpressions.Regex.Replace(
+            text,
+            @"(@\w+)",
+            match => $"<span style='color:blue;'>{match.Value}</span>"
+        );
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        blog = await http.GetFromJsonAsync<BlogEntry>($"https://localhost:7193/api/Auth/blog/{id}");
+    }
+
+    private string GetLikeIcon()
+    {
+        return blog.Likes?.Contains(Data.Email) == true
+            ? Icons.Material.Filled.ThumbUp
+            : Icons.Material.Outlined.ThumbUp;
+    }
+
+    private string GetDislikeIcon()
+    {
+        return blog.Dislikes?.Contains(Data.Email) == true
+            ? Icons.Material.Filled.ThumbDown
+            : Icons.Material.Outlined.ThumbDown;
+    }
+
+
+    private async Task LikeBlog(string blogId)
+    {
+        var response = await http.PostAsync($"https://localhost:7193/api/Auth/like/{blogId}", null);
+
+        if (response.IsSuccessStatusCode && !string.IsNullOrWhiteSpace(Data.Email))
+        {
+            // Update UI locally
+            blog.Likes ??= new List<string>();
+
+            if (blog.Likes.Contains(Data.Email))
+                blog.Likes.Remove(Data.Email); // Toggle off
+            else
+            {
+                blog.Likes.Add(Data.Email);
+                blog.Dislikes?.Remove(Data.Email); // Remove from dislikes if exists
+            }
+        }
+    }
+
+
+    private async Task DislikeBlog(string blogId)
+    {
+        var response = await http.PostAsync($"https://localhost:7193/api/Auth/dislike/{blogId}", null);
+
+        if (response.IsSuccessStatusCode && !string.IsNullOrWhiteSpace(Data.Email))
+        {
+            blog.Dislikes ??= new List<string>();
+
+            if (blog.Dislikes.Contains(Data.Email))
+                blog.Dislikes.Remove(Data.Email); // Toggle off
+            else
+            {
+                blog.Dislikes.Add(Data.Email);
+                blog.Likes?.Remove(Data.Email); // Remove from likes if exists
+            }
+        }
+    }
+
+
+    private async Task PostComment()
+    {
+         if (string.IsNullOrWhiteSpace(newComment)) return;
+
+        isPosting = true;
+
+        var content = new StringContent(JsonSerializer.Serialize(newComment), Encoding.UTF8, "application/json");
+
+        var response = await http.PostAsync($"https://localhost:7193/api/Auth/comment/{blog.Id}", content);
+
+        if (response.IsSuccessStatusCode && !string.IsNullOrWhiteSpace(Data.Email))
+        {
+            blog.Comments ??= new List<Comment>();
+
+            blog.Comments.Add(new Comment
+            {
+                Text = newComment,
+                AuthorEmail = Data.Email,
+                Timestamp = DateTime.UtcNow
+            });
+
+            foreach (var email in mentionedEmails)
+            {
+                var blogLink = $"https://localhost:7157/blog/{blog.Id}";
+
+                await JS.InvokeVoidAsync(
+                    "sendCommentNotification",
+                    email,          // toEmail
+                    newComment,     // commentText
+                    Data.Email ,     // authorEmail
+                    blogLink
+                );
+            }
+
+            newComment = "";
+            mentionedEmails.Clear();
+        }
+
+        isPosting = false;
+    }
+
+}

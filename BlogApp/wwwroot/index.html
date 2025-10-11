@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BlogApp</title>
+    <base href="/" />
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/app.css" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link href="BlogApp.styles.css" rel="stylesheet" />
+
+    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+
+</head>
+
+<body>
+    <div id="app">
+        <svg class="loading-progress">
+            <circle r="40%" cx="50%" cy="50%" />
+            <circle r="40%" cx="50%" cy="50%" />
+        </svg>
+        <div class="loading-progress-text"></div>
+    </div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+    <script src="_framework/blazor.webassembly.js"></script>
+
+    <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+    <script type="module" src="js/notifications.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+        emailjs.init("TpaxvHZ1fTC-sTb30");
+
+        window.sendBlogNotification = function (toEmail, blogTitle, authorEmail,blogUrl) {
+            return emailjs.send("service_0d2wvzb", "template_r6fx9i2", {
+                to_email: toEmail,
+                blog_title: blogTitle,
+                author_email: authorEmail,
+                blog_url: blogUrl,
+                from_name: "Blog Platform by Jahnavi"
+            }).then(function (response) {
+                console.log("✅ Email sent to " + toEmail, response);
+            }, function (error) {
+                console.error("❌ Email failed to " + toEmail, error);
+            });
+        };
+
+        window.sendCommentNotification = function (toEmail, commentText, authorEmail, postLink) {
+            return emailjs.send("service_0d2wvzb", "template_gdnq9ia", {
+                to_email: toEmail,
+                comment_text: commentText,
+                author_email: authorEmail,
+                post_link: postLink,
+                from_name: "Blog Platform by Jahnavi"
+            }).then(function (response) {
+                console.log("✅ Mention notification email sent to " + toEmail, response);
+            }, function (error) {
+                console.error("❌ Mention email failed to " + toEmail, error);
+            });
+        };
+
+        //window.sendNotification = function (toEmail, blogTitle, commentText, authorEmail) {
+        //    return emailjs.send("service_xey7cmp", "template_85dyw9m", {
+        //        to_email: toEmail,
+        //        blog_title: blogTitle || "",   // blank if not a blog notification
+        //        comment_text: commentText || "", // blank if not a mention
+        //        author_email: authorEmail,
+        //        from_name: "Blog Platform by Jahnavi"
+        //    }).then(function (response) {
+        //        console.log("✅ Email sent to " + toEmail, response);
+        //    }, function (error) {
+        //        console.error("❌ Email failed to " + toEmail, error);
+        //    });
+        //};
+    </script>
+
+
+</body>
+
+</html>

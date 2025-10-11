@@ -1,0 +1,397 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|c:\\users\\jahnavi\\onedrive\\desktop\\wise work\\blogapp\\blogapp\\blogapp\\blogapp\\pages\\blogpage.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|solutionrelative:blogapp\\pages\\blogpage.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|c:\\users\\jahnavi\\onedrive\\desktop\\wise work\\blogapp\\blogapp\\blogapp\\blogapp\\pages\\blogdetails.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|solutionrelative:blogapp\\pages\\blogdetails.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|c:\\users\\jahnavi\\onedrive\\desktop\\wise work\\blogapp\\blogapp\\blogapp\\blogapp\\wwwroot\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|solutionrelative:blogapp\\wwwroot\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|c:\\users\\jahnavi\\onedrive\\desktop\\wise work\\blogapp\\blogapp\\blogapp\\blogapp\\wwwroot\\js\\notifications.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|solutionrelative:blogapp\\wwwroot\\js\\notifications.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|c:\\users\\jahnavi\\onedrive\\desktop\\wise work\\blogapp\\blogapp\\blogapp\\blogapp\\pages\\notifications.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|solutionrelative:blogapp\\pages\\notifications.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|c:\\users\\jahnavi\\onedrive\\desktop\\wise work\\blogapp\\blogapp\\blogapp\\blogapp\\layout\\generallayout.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|solutionrelative:blogapp\\layout\\generallayout.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|c:\\users\\jahnavi\\onedrive\\desktop\\wise work\\blogapp\\blogapp\\blogapp\\blogapp\\layout\\mainlayout.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|solutionrelative:blogapp\\layout\\mainlayout.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|c:\\users\\jahnavi\\onedrive\\desktop\\wise work\\blogapp\\blogapp\\blogapp\\blogapp\\pages\\mainpage.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|solutionrelative:blogapp\\pages\\mainpage.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|c:\\users\\jahnavi\\onedrive\\desktop\\wise work\\blogapp\\blogapp\\blogapp\\blogapp\\pages\\profile1.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|solutionrelative:blogapp\\pages\\profile1.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|c:\\users\\jahnavi\\onedrive\\desktop\\wise work\\blogapp\\blogapp\\blogapp\\blogapp\\pages\\profile.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|solutionrelative:blogapp\\pages\\profile.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|c:\\users\\jahnavi\\onedrive\\desktop\\wise work\\blogapp\\blogapp\\blogapp\\blogapp\\pages\\editblog.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|solutionrelative:blogapp\\pages\\editblog.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|c:\\users\\jahnavi\\onedrive\\desktop\\wise work\\blogapp\\blogapp\\blogapp\\blogapp\\models\\blogdata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|solutionrelative:blogapp\\models\\blogdata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|c:\\users\\jahnavi\\onedrive\\desktop\\wise work\\blogapp\\blogapp\\blogapp\\blogapp\\models\\userdata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|solutionrelative:blogapp\\models\\userdata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|c:\\users\\jahnavi\\onedrive\\desktop\\wise work\\blogapp\\blogapp\\blogapp\\blogapp\\pages\\authcallback.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|solutionrelative:blogapp\\pages\\authcallback.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|c:\\users\\jahnavi\\onedrive\\desktop\\wise work\\blogapp\\blogapp\\blogapp\\blogapp\\pages\\home.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|solutionrelative:blogapp\\pages\\home.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|c:\\users\\jahnavi\\onedrive\\desktop\\wise work\\blogapp\\blogapp\\blogapp\\blogapp\\layout\\navmenu.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|solutionrelative:blogapp\\layout\\navmenu.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|c:\\users\\jahnavi\\onedrive\\desktop\\wise work\\blogapp\\blogapp\\blogapp\\blogapp\\blogapp.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|solutionrelative:blogapp\\blogapp.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|c:\\users\\jahnavi\\onedrive\\desktop\\wise work\\blogapp\\blogapp\\blogapp\\blogapp\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|solutionrelative:blogapp\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|c:\\users\\jahnavi\\onedrive\\desktop\\wise work\\blogapp\\blogapp\\blogapp\\blogapp\\models\\googledata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|solutionrelative:blogapp\\models\\googledata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|c:\\users\\jahnavi\\onedrive\\desktop\\wise work\\blogapp\\blogapp\\blogapp\\blogapp\\models\\blogentry.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|solutionrelative:blogapp\\models\\blogentry.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|c:\\users\\jahnavi\\onedrive\\desktop\\wise work\\blogapp\\blogapp\\blogapp\\blogapp\\app.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|solutionrelative:blogapp\\app.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|c:\\users\\jahnavi\\onedrive\\desktop\\wise work\\blogapp\\blogapp\\blogapp\\blogapp\\_imports.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|solutionrelative:blogapp\\_imports.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|c:\\users\\jahnavi\\onedrive\\desktop\\wise work\\blogapp\\blogapp\\blogapp\\blogapp\\wwwroot\\css\\app.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{BA6AC2BF-CA41-4FED-AE80-9DD1B964A612}|BlogApp\\BlogApp.csproj|solutionrelative:blogapp\\wwwroot\\css\\app.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "BlogPage.razor",
+              "DocumentMoniker": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Pages\\BlogPage.razor",
+              "RelativeDocumentMoniker": "BlogApp\\Pages\\BlogPage.razor",
+              "ToolTip": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Pages\\BlogPage.razor",
+              "RelativeToolTip": "BlogApp\\Pages\\BlogPage.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAOgAAABFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-07-02T06:10:15.189Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "MainLayout.razor",
+              "DocumentMoniker": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Layout\\MainLayout.razor",
+              "RelativeDocumentMoniker": "BlogApp\\Layout\\MainLayout.razor",
+              "ToolTip": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Layout\\MainLayout.razor",
+              "RelativeToolTip": "BlogApp\\Layout\\MainLayout.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAmAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-06-30T06:35:51.663Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "GeneralLayout.razor",
+              "DocumentMoniker": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Layout\\GeneralLayout.razor",
+              "RelativeDocumentMoniker": "BlogApp\\Layout\\GeneralLayout.razor",
+              "ToolTip": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Layout\\GeneralLayout.razor",
+              "RelativeToolTip": "BlogApp\\Layout\\GeneralLayout.razor",
+              "ViewState": "AgIAADAAAAAAAAAAAAAAAEcAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-07-04T10:12:59.139Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "BlogDetails.razor",
+              "DocumentMoniker": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Pages\\BlogDetails.razor",
+              "RelativeDocumentMoniker": "BlogApp\\Pages\\BlogDetails.razor",
+              "ToolTip": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Pages\\BlogDetails.razor",
+              "RelativeToolTip": "BlogApp\\Pages\\BlogDetails.razor",
+              "ViewState": "AgIAAMUAAAAAAAAAAAAgwC0AAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-07-23T04:20:44.548Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Profile.razor",
+              "DocumentMoniker": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Pages\\Profile.razor",
+              "RelativeDocumentMoniker": "BlogApp\\Pages\\Profile.razor",
+              "ToolTip": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Pages\\Profile.razor",
+              "RelativeToolTip": "BlogApp\\Pages\\Profile.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAABkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-07-01T11:40:22.295Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Notifications.razor",
+              "DocumentMoniker": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Pages\\Notifications.razor",
+              "RelativeDocumentMoniker": "BlogApp\\Pages\\Notifications.razor",
+              "ToolTip": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Pages\\Notifications.razor",
+              "RelativeToolTip": "BlogApp\\Pages\\Notifications.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFsAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-08-03T06:10:21.104Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "notifications.js",
+              "DocumentMoniker": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\wwwroot\\js\\notifications.js",
+              "RelativeDocumentMoniker": "BlogApp\\wwwroot\\js\\notifications.js",
+              "ToolTip": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\wwwroot\\js\\notifications.js",
+              "RelativeToolTip": "BlogApp\\wwwroot\\js\\notifications.js",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAACgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-08-07T12:13:08.665Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "index.html",
+              "DocumentMoniker": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\wwwroot\\index.html",
+              "RelativeDocumentMoniker": "BlogApp\\wwwroot\\index.html",
+              "ToolTip": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\wwwroot\\index.html",
+              "RelativeToolTip": "BlogApp\\wwwroot\\index.html",
+              "ViewState": "AgIAACUAAAAAAAAAAAAIwDcAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
+              "WhenOpened": "2025-06-30T06:41:05.398Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Mainpage.razor",
+              "DocumentMoniker": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Pages\\Mainpage.razor",
+              "RelativeDocumentMoniker": "BlogApp\\Pages\\Mainpage.razor",
+              "ToolTip": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Pages\\Mainpage.razor",
+              "RelativeToolTip": "BlogApp\\Pages\\Mainpage.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAGAAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-07-01T06:49:21.658Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "EditBlog.razor",
+              "DocumentMoniker": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Pages\\EditBlog.razor",
+              "RelativeDocumentMoniker": "BlogApp\\Pages\\EditBlog.razor",
+              "ToolTip": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Pages\\EditBlog.razor",
+              "RelativeToolTip": "BlogApp\\Pages\\EditBlog.razor",
+              "ViewState": "AgIAAGYAAAAAAAAAAAAAACYAAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-07-24T09:45:33.512Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Profile1.razor",
+              "DocumentMoniker": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Pages\\Profile1.razor",
+              "RelativeDocumentMoniker": "BlogApp\\Pages\\Profile1.razor",
+              "ToolTip": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Pages\\Profile1.razor",
+              "RelativeToolTip": "BlogApp\\Pages\\Profile1.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAABkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-07-28T04:43:18.983Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "BlogData.cs",
+              "DocumentMoniker": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Models\\BlogData.cs",
+              "RelativeDocumentMoniker": "BlogApp\\Models\\BlogData.cs",
+              "ToolTip": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Models\\BlogData.cs",
+              "RelativeToolTip": "BlogApp\\Models\\BlogData.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAA8AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-18T05:37:06.207Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "UserData.cs",
+              "DocumentMoniker": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Models\\UserData.cs",
+              "RelativeDocumentMoniker": "BlogApp\\Models\\UserData.cs",
+              "ToolTip": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Models\\UserData.cs",
+              "RelativeToolTip": "BlogApp\\Models\\UserData.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-02T04:06:25.402Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "AuthCallback.razor",
+              "DocumentMoniker": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Pages\\AuthCallback.razor",
+              "RelativeDocumentMoniker": "BlogApp\\Pages\\AuthCallback.razor",
+              "ToolTip": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Pages\\AuthCallback.razor",
+              "RelativeToolTip": "BlogApp\\Pages\\AuthCallback.razor",
+              "ViewState": "AgIAABIAAAAAAAAAAAAAACkAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-07-03T04:57:53.936Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "NavMenu.razor",
+              "DocumentMoniker": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Layout\\NavMenu.razor",
+              "RelativeDocumentMoniker": "BlogApp\\Layout\\NavMenu.razor",
+              "ToolTip": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Layout\\NavMenu.razor",
+              "RelativeToolTip": "BlogApp\\Layout\\NavMenu.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABoAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-06-30T06:35:53.045Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "Home.razor",
+              "DocumentMoniker": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Pages\\Home.razor",
+              "RelativeDocumentMoniker": "BlogApp\\Pages\\Home.razor",
+              "ToolTip": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Pages\\Home.razor",
+              "RelativeToolTip": "BlogApp\\Pages\\Home.razor",
+              "ViewState": "AgIAAI8BAAAAAAAAAAAAAJEBAABHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-06-30T06:01:49.943Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "BlogApp.csproj",
+              "DocumentMoniker": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\BlogApp.csproj",
+              "RelativeDocumentMoniker": "BlogApp\\BlogApp.csproj",
+              "ToolTip": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\BlogApp.csproj",
+              "RelativeToolTip": "BlogApp\\BlogApp.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-07-01T04:34:50.79Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Program.cs",
+              "RelativeDocumentMoniker": "BlogApp\\Program.cs",
+              "ToolTip": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Program.cs",
+              "RelativeToolTip": "BlogApp\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-30T06:43:15.699Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "Googledata.cs",
+              "DocumentMoniker": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Models\\Googledata.cs",
+              "RelativeDocumentMoniker": "BlogApp\\Models\\Googledata.cs",
+              "ToolTip": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Models\\Googledata.cs",
+              "RelativeToolTip": "BlogApp\\Models\\Googledata.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-18T09:48:59.655Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "BlogEntry.cs",
+              "DocumentMoniker": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Models\\BlogEntry.cs",
+              "RelativeDocumentMoniker": "BlogApp\\Models\\BlogEntry.cs",
+              "ToolTip": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\Models\\BlogEntry.cs",
+              "RelativeToolTip": "BlogApp\\Models\\BlogEntry.cs",
+              "ViewState": "AgIAAAcAAAAAAAAAAAAQwA8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-22T09:59:34.429Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "App.razor",
+              "DocumentMoniker": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\App.razor",
+              "RelativeDocumentMoniker": "BlogApp\\App.razor",
+              "ToolTip": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\App.razor",
+              "RelativeToolTip": "BlogApp\\App.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-06-30T06:40:08.512Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "_Imports.razor",
+              "DocumentMoniker": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\_Imports.razor",
+              "RelativeDocumentMoniker": "BlogApp\\_Imports.razor",
+              "ToolTip": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\_Imports.razor",
+              "RelativeToolTip": "BlogApp\\_Imports.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-06-30T06:40:02.247Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "app.css",
+              "DocumentMoniker": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\wwwroot\\css\\app.css",
+              "RelativeDocumentMoniker": "BlogApp\\wwwroot\\css\\app.css",
+              "ToolTip": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\wwwroot\\css\\app.css",
+              "RelativeToolTip": "BlogApp\\wwwroot\\css\\app.css",
+              "ViewState": "AgIAAFQAAAAAAAAAAIBJwGgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2025-07-04T10:22:55.222Z"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

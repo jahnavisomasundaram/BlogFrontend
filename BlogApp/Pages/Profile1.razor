@@ -1,0 +1,299 @@
+﻿@page "/profile1/{name}"
+@layout GeneralLayout
+@using BlogApp.Models
+@using MudBlazor
+@using System.Net.Http.Headers
+@using System.Text.Json
+@inject UserData Data
+@inject NavigationManager Navigation
+@inject HttpClient http
+
+<MudContainer MaxWidth="MaxWidth.Medium" Style="margin-top:30px" >
+    <MudPaper Elevation="2" Class="container-1 p-6 rounded-2xl shadow-lg flex flex-wrap items-center">
+       
+        <MudGrid Gutter="true">
+            <MudItem md="2">
+                <MudContainer>
+                    <ActivatorContent>
+                        <MudAvatar Class="profile-avatar" Style="width:130px;height:130px">
+                                                @(!string.IsNullOrEmpty(Data.Name) ? Data.Name[0].ToString().ToUpper() : "?")
+                        </MudAvatar>
+                    </ActivatorContent>
+                </MudContainer>
+            </MudItem>
+
+
+            <MudItem md="5">
+                <MudGrid Gutter="true">
+                    <MudItem md="12">
+                        <MudContainer>
+                            <MudText Typo="Typo.h5" Class="font-bold">@name</MudText>
+                            <MudText Typo="Typo.subtitle2" Class="text-gray-600 mt-2">
+                                Tech Blogger & UI Enthusiast from India 🌏
+                            </MudText>
+                        </MudContainer>
+                    </MudItem>
+                    <MudItem md="4" Class="mb-2">
+                        <MudContainer>
+                            <MudButton Variant="Variant.Filled" Color="Color.Dark" Style="margin-left:30px;border-radius:16px;" OnClick="FollowUser"> @(isFollowing ? "Unfollow" : "Follow")</MudButton>
+                        </MudContainer>
+                    </MudItem>
+                    <MudItem md="8">
+                        <MudContainer Class="mb-2">
+                            @* <MudButton Variant="Variant.Filled" Color="Color.Dark" Style="border-radius:16px;">Edit Profile</MudButton> *@
+                        </MudContainer>
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+
+
+            <MudItem md="5">
+                <MudGrid Gutter="true" Class="followers-grid">
+                    <MudItem xs="12" sm="4">
+                        <MudContainer>
+                            <MudText Typo="Typo.subtitle2" Class="text-gray-500">Followers</MudText>
+                            <MudText Typo="Typo.h5" Class="font-bold">@followerCount</MudText>
+                        </MudContainer>
+                    </MudItem>
+                    <MudItem xs="12" sm="4">
+                        <MudContainer>
+                            <MudText Typo="Typo.subtitle2" Class="text-gray-500">Following</MudText>
+                            <MudText Typo="Typo.h5" Class="font-bold">@followingCount</MudText>
+                        </MudContainer>
+                    </MudItem>
+                   
+
+
+                </MudGrid>
+
+            </MudItem>
+
+        </MudGrid>
+
+
+    </MudPaper>
+
+    <MudTabs Class="mt-8" Centered="true" Rounded="true">
+        <MudTabPanel Text="Followers">
+            @if (followerCount == 0)
+            {
+                <MudText>No followers yet.</MudText>
+            }
+            else
+            {
+                @foreach (var f in Followers)
+                {
+                    <MudPaper Class="p-3 my-2 rounded-xl" Style="display: flex; align-items: center; gap: 12px;">
+                        <MudAvatar Class="profile-avatar">
+                            @(!string.IsNullOrEmpty(f) ? f[0].ToString().ToUpper() : "?")
+                        </MudAvatar>
+                        <MudText>@f</MudText>
+                    </MudPaper>
+                }
+            }
+        </MudTabPanel>
+        <MudTabPanel Text="Following">
+            @if (followingCount == 0)
+            {
+                <MudText>Not following anyone.</MudText>
+            }
+            else
+            {
+                @foreach (var f in Following)
+                {
+                    <MudPaper Class="p-3 my-2 rounded-xl" Style="display: flex; align-items: center; gap: 12px;">
+                        <MudAvatar Class="profile-avatar">
+                            @(!string.IsNullOrEmpty(f) ? f[0].ToString().ToUpper() : "?")
+                        </MudAvatar>
+                        <MudText>@f</MudText>
+                    </MudPaper>
+                }
+            }
+        </MudTabPanel>
+        <MudTabPanel Text="Blogs">
+            @if (userBlogs == null)
+            {
+                <p>Loading blogs...</p>
+            }
+            else if (userBlogs.Count == 0)
+            {
+                <p>No blogs found.</p>
+            }
+            else
+            {
+                @foreach (var blog in userBlogs)
+                {
+
+                    <MudContainer MaxWidth="MaxWidth.Medium" Class="my-4">
+                        <MudPaper Class="rounded-l p-4 shadow hover:shadow-lg transition duration-300" @onclick="@(() => Navigation.NavigateTo($"/blog/{blog.Id}"))">
+                            <MudGrid AlignItems="AlignItems.Center">
+
+                                <!-- Left: Avatar + Email + Title + Subtitle -->
+                                <MudItem xs="12" md="8">
+                                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                        <ActivatorContent>
+                                            <MudAvatar Class="profile-avatar">
+                                                @(!string.IsNullOrEmpty(@blog.AuthorName) ? @blog.AuthorName[0].ToString().ToUpper() : "?")
+                                            </MudAvatar>
+                                        </ActivatorContent>
+                                        <MudText Typo="Typo.subtitle2" Class="font-bold" Style="display: flex; align-items: center; gap: 6px;">
+                                            @blog.AuthorName
+                                            @if (blog.Visibility == "Private")
+                                            {
+                                                <MudTooltip Text="Private blog">
+                                                    <MudIcon Icon="@Icons.Material.Filled.Lock" Size="Size.Small" Style="margin-left:30px" />
+                                                </MudTooltip>
+                                            }
+                                        </MudText>
+                                    </div>
+
+                                <MudText Typo="Typo.h5" Class="font-bold">@blog.Title</MudText>
+                                <MudText Typo="Typo.subtitle1">@blog.Subtitle</MudText>
+
+                                <div style="display: flex; align-items: center; gap: 6px; margin-top: 8px;">
+                                    <MudIcon Icon="@Icons.Material.Filled.CalendarToday" />
+                                    <MudText Typo="Typo.body2">@blog.CreatedAt.ToString("MMM dd, yyyy")</MudText>
+                           
+                                </div>
+                                </MudItem>
+
+                                <!-- Right: Blog Image -->
+                                <MudItem xs="12" md="4" Class="flex justify-center md:justify-end mt-2 md:mt-0">
+                                @if (blog.ImageUrl != null && blog.ImageUrl.Length > 0)
+                                {
+                                    <MudImage ObjectFit="ObjectFit.Cover" Src="@blog.ImageUrl"
+                                            Style="width: 250px; height: 160px;" />
+
+                                }
+                                </MudItem>
+
+                            </MudGrid>
+                        </MudPaper>
+                    </MudContainer>
+ 
+
+                }
+            }
+        </MudTabPanel>
+    </MudTabs>
+
+</MudContainer>
+
+
+
+@code{
+
+    [Inject]
+    public IJSRuntime JS { get; set; } = default!;
+
+    public List<string> Followers { get; set; } = new();
+    public List<string> Following { get; set; } = new();
+    private List<BlogEntry> userBlogs = new();
+
+    private bool isFollowing = false; // ✅ Declare this at the top
+
+    private int followerCount = 0;
+    private int followingCount = 0;
+
+
+    [Parameter] public string name { get; set; }
+    [Parameter][SupplyParameterFromQuery] public string email { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        var jwt = await JS.InvokeAsync<string>("localStorage.getItem", "jwt");
+
+        if (string.IsNullOrWhiteSpace(jwt))
+        {
+            Navigation.NavigateTo("/", forceLoad: true);
+            return;
+        }
+
+        http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+
+        var statsResponse = await http.GetAsync($"https://localhost:7193/api/Auth/userstats?email={email}");
+        if (statsResponse.IsSuccessStatusCode)
+        {
+            var json = await statsResponse.Content.ReadAsStringAsync();
+
+            using var document = JsonDocument.Parse(json);
+            var root = document.RootElement;
+
+            // Deserialize lists
+            Followers = root.GetProperty("followers").EnumerateArray()
+                            .Select(f => f.GetString()).ToList();
+
+            Following = root.GetProperty("following").EnumerateArray()
+                            .Select(f => f.GetString()).ToList();
+
+            // Get counts
+            followerCount = root.GetProperty("followerCount").GetInt32();
+            followingCount = root.GetProperty("followingCount").GetInt32();
+
+        }
+
+
+        var followCheckResponse = await http.GetAsync($"https://localhost:7193/api/Auth/isfollowing?targetUserEmail={email}");
+        if (followCheckResponse.IsSuccessStatusCode)
+        {
+            var result = await followCheckResponse.Content.ReadFromJsonAsync<JsonElement>();
+            isFollowing = result.GetProperty("isFollowing").GetBoolean();
+        }
+
+        var resBlogs = await http.GetAsync($"https://localhost:7193/api/Auth/getBlogs?email={email}");
+        if (resBlogs.IsSuccessStatusCode)
+        {
+            var allUserBlogs = await resBlogs.Content.ReadFromJsonAsync<List<BlogEntry>>() ?? new();
+
+            userBlogs = allUserBlogs
+                .Where(blog => blog.Visibility == "Public" || (isFollowing && blog.Visibility == "Private"))
+                .ToList();
+        }
+    }
+
+    private async Task FollowUser()
+    {
+        //var request = new BlogData { UserName = name };
+
+        var response = await http.PostAsJsonAsync("https://localhost:7193/api/Auth/follow", email);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<JsonElement>();
+            bool nowFollowing = result.GetProperty("followed").GetBoolean();
+
+            if (nowFollowing)
+            {
+                followerCount++;
+              
+            }
+            else
+            {
+                followerCount--;
+               
+            }
+
+            isFollowing = nowFollowing;
+        }
+        else
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Follow API failed: {response.StatusCode} - {error}");
+        }
+    }
+}
+
+
+<style>
+    .followers-grid{
+        margin-top:10px;
+        display:flex;
+        flex-direction:row;
+        justify-content:center;
+        align-items:center;
+    }
+    .container-1{
+        padding:30px;
+    }
+</style>
