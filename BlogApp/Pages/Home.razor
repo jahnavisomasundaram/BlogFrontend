@@ -30,7 +30,7 @@
     </style>
 
     <!-- NAVBAR -->
-    <MudAppBar Elevation="0"  Class="px-6" Style="background-color: #111;">
+    <MudAppBar Elevation="0" Class="px-6" Style="background-color: #111;">
         <MudText Typo="Typo.h5" Class="text-yellow-300 font-semibold">BlogNest</MudText>
         <MudSpacer />
         <MudText Class="text-yellow-200 hover:underline cursor-pointer mx-4">About</MudText>
@@ -44,45 +44,44 @@
     <!-- MAIN SECTION -->
     <MudContainer MaxWidth="MaxWidth.False" Class="d-flex flex-row p-12" Style="background-color: #fefae0;">
         <!-- Left Image -->
-        <div style="flex: 1;">
-            <img Src="images/BlogImage.png" Width="100%" Style="border-radius: 12px; margin-left:0px" />
+        <div style="flex: 1; min-height: 200px;">
+            <img src="/images/BlogImage.png" Width="100%" Style="border-radius: 12px; margin-left:0px" alt="Blog Image" />
         </div>
 
         <!-- Right Content -->
         <div class="d-flex flex-column justify-content-center px-12" style="flex: 1;">
             <MudText Typo="Typo.h3" Class="font-serif mb-4" Style="font-family:Georgia">Ignite Your Curiosity, Expand Your Mind</MudText>
-            @* <MudText Typo="Typo.subtitle1" Class="mb-6" Style="font-family:Georgia">Empowering the Educational Journey.</MudText> *@
             <MudText Typo="Typo.subtitle1" Class="mb-6" Style="font-family:Georgia">Whether you're a passionate writer, a curious reader, or someone seeking to explore new perspectives, our platform offers a space to connect, learn, and grow. Join a community where stories spark conversations and thoughts take flight.</MudText>
             <MudButton Variant="Variant.Filled" Color="Color.Primary" Style="width: fit-content; background-color: #111;" OnClick="ShowCard">
                 Start Reading
             </MudButton>
         </div>
 
-        @if(showCard)
+        @if (showCard)
         {
             <div class="overlay-blur">
                 <MudCard Style="width: 500px; padding: 70px; border-radius: 14px;position: relative;">
                     <MudIconButton Icon="@Icons.Material.Filled.Close"
                                    Color="Color.Default"
                                    Style="position: absolute; top: 12px; right: 12px;"
-                                   OnClick="CloseCard" />
+                                   OnClick="@CloseCard" />
                     <MudText Typo="Typo.h4" Class="d-flex justify-center mt-2" Style="margin-bottom:20px ; font-family:Georgia;">Welcome to BlogNest</MudText>
                     <MudItem xs="12" Class="d-flex justify-center mt-2">
-                        <MudButton Variant="Variant.Outlined" Style="border-radius:18px  ;width: 100%" OnClick="SignInWithGoogle">
-                            <img src="Images/google.png" style="height: 20px; margin-right: 12px;" />
+                        <MudButton Variant="Variant.Outlined" Style="border-radius:18px  ;width: 100%" OnClick="@SignInWithGoogle">
+                            <img src="images/google.png" style="height: 20px; margin-right: 12px;" />
                             Sign up with Google
                         </MudButton>
                     </MudItem>
                     <MudItem xs="12" Class="d-flex justify-center mt-2">
                         <MudButton Variant="Variant.Outlined" Style="border-radius:18px  ;width: 100%">
-                            <img src="Images/facebook.png" style="height: 20px; margin-right: 12px;" />
+                            <img src="images/facebook.png" style="height: 20px; margin-right: 12px;" />
                             Sign up with Facebook
                         </MudButton>
 
                     </MudItem>
 
                     <MudItem xs="12" Class="d-flex justify-center mt-2">
-                        <MudButton Variant="Variant.Outlined" Style="border-radius:18px  ;width: 100%" OnClick="RegisterPage">
+                        <MudButton Variant="Variant.Outlined" Style="border-radius:18px  ;width: 100%" OnClick="@RegisterPage">
                             <MudIcon Icon="@Icons.Material.Outlined.Mail" style="margin-right: 12px;"></MudIcon>
                             Sign up with Email
                         </MudButton>
@@ -90,14 +89,13 @@
                     </MudItem>
 
                     <MudText Class="mt-4" Typo="Typo.body2" Style="margin-left:70px">
-                        Already have an account? <MudLink
-                                                          Style="font-weight:400;" OnClick="ShowLogin">
+                        Already have an account? <MudLink Style="font-weight:400;" OnClick="@ShowLogin">
                             Sign In
                         </MudLink>
                     </MudText>
 
                     <MudText Class="mt-4 d-flex justify-center text-center" Typo="Typo.body2" Style="align-content:center">
-                        Click “Sign up” to agree to BlogNest’s Terms of Service and acknowledge that BlogNest’s Privacy Policy applies to you.
+                        Click "Sign up" to agree to BlogNest's Terms of Service and acknowledge that BlogNest's Privacy Policy applies to you.
                     </MudText>
 
                 </MudCard>
@@ -111,8 +109,14 @@
                     <MudIconButton Icon="@Icons.Material.Filled.Close"
                                    Color="Color.Default"
                                    Style="position: absolute; top: 12px; right: 12px;"
-                                   OnClick="CloseLogin" />
+                                   OnClick="@CloseLogin" />
                     <MudText Typo="Typo.h4" Class="d-flex justify-center mt-2" Style="margin-bottom:20px ; font-family:Georgia;">Login to BlogNest</MudText>
+
+                    @if (!string.IsNullOrEmpty(loginMessage))
+                    {
+                        <MudAlert Severity="@loginMessageSeverity" Class="mb-4">@loginMessage</MudAlert>
+                    }
+
                     <MudItem xs="12">
                         <MudTextField @bind-Value="email"
                                       Label="Email"
@@ -139,9 +143,17 @@
                         <MudButton Variant="Variant.Outlined"
                                    Size="Size.Medium"
                                    Style="min-width:200px;"
-                                   OnClick="HandleLogin"
+                                   OnClick="@HandleLogin"
+                                   Disabled="@isLoggingIn"
                                    Class="py-4 px-6">
-                            Sign In
+                            @if (isLoggingIn)
+                            {
+                                <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                            }
+                            else
+                            {
+                                <span>Sign In</span>
+                            }
                         </MudButton>
                     </MudItem>
 
@@ -156,7 +168,7 @@
                     <MudIconButton Icon="@Icons.Material.Filled.Close"
                                    Color="Color.Default"
                                    Style="position: absolute; top: 12px; right: 12px;"
-                                   OnClick="CloseRegister" />
+                                   OnClick="@CloseRegister" />
                     <MudText Typo="Typo.h4" Class="d-flex justify-center mt-2" Style="margin-bottom:20px ; font-family:Georgia;">Create Account</MudText>
                     <MudGrid Spacing="3">
                         <MudItem xs="12">
@@ -201,16 +213,27 @@
                         </MudItem>
 
                         <MudItem xs="12" Class="d-flex justify-center">
-                            <MudText Color="Color.Error">@message</MudText>
+                            @if (!string.IsNullOrEmpty(message))
+                            {
+                                <MudAlert Severity="@messageSeverity" Dense="true">@message</MudAlert>
+                            }
                         </MudItem>
 
 
                         <MudItem xs="12" Class="d-flex justify-center mt-4">
                             <MudButton Variant="Variant.Outlined"
                                        Size="Size.Medium"
-                                       OnClick="HandleRegister"
+                                       OnClick="@HandleRegister"
+                                       Disabled="@isRegistering"
                                        Class="py-4 px-6">
-                                Create Account
+                                @if (isRegistering)
+                                {
+                                    <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                                }
+                                else
+                                {
+                                    <span>Create Account</span>
+                                }
                             </MudButton>
                         </MudItem>
                     </MudGrid>
@@ -219,20 +242,57 @@
             </div>
         }
 
+        @if (showEmailConfirmation)
+        {
+            <div class="overlay-blur">
+                <MudCard Style="width: 500px; padding: 60px; border-radius: 14px;position: relative; text-align: center;">
+                    <MudIcon Icon="@Icons.Material.Filled.MarkEmailRead" Color="Color.Primary" Style="font-size: 4rem;" Class="mb-4" />
+                    <MudText Typo="Typo.h5" Class="mb-3" Style="font-family:Georgia;">Check Your Email</MudText>
+                    <MudText Typo="Typo.body1" Class="mb-4">
+                        We've sent a confirmation link to <strong>@regEmail</strong>
+                    </MudText>
+                    <MudText Typo="Typo.body2" Class="mb-6" Style="color: #666;">
+                        Please click the link in the email to verify your account. After verification, you'll be redirected back to login.
+                    </MudText>
+
+                    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-4" />
+
+                    <MudText Typo="Typo.caption" Style="color: #999;">
+                        Didn't receive the email? Check your spam folder or contact support.
+                    </MudText>
+
+                    <MudButton Variant="Variant.Text"
+                               Color="Color.Primary"
+                               OnClick="CloseEmailConfirmation"
+                               Class="mt-4">
+                        Close
+                    </MudButton>
+                </MudCard>
+            </div>
+        }
+
     </MudContainer>
 </MudLayout>
 
-@code{
+@code {
     public bool showCard = false;
     public bool showLogin = false;
     public bool showRegister = false;
+    public bool showEmailConfirmation = false;
+    public bool isRegistering = false;
+    public bool isLoggingIn = false;
+
     public string email = "";
     public string password = "";
-    public string regEmail="";
+    public string regEmail = "";
     public string regPassword = "";
     public string regConfirmPassword = "";
     public string regName = "";
     private string message = "";
+    private Severity messageSeverity = Severity.Error;
+
+    private string loginMessage = "";
+    private Severity loginMessageSeverity = Severity.Error;
 
     private InputType passwordInputType = InputType.Password;
     private InputType passwordInputType1 = InputType.Password;
@@ -281,131 +341,204 @@
 
     public async Task ShowLogin(MouseEventArgs args)
     {
-        //showCard = false;
+        showCard = false;
         showLogin = true;
+        loginMessage = "";
     }
 
     private async Task CloseLogin(MouseEventArgs args)
     {
         showLogin = false;
+        loginMessage = "";
+        email = "";
+        password = "";
     }
 
     private async Task RegisterPage(MouseEventArgs args)
     {
+        showCard = false;
         showRegister = true;
+        message = "";
     }
 
     private async Task CloseRegister(MouseEventArgs args)
     {
         showRegister = false;
+        message = "";
+        regName = "";
+        regEmail = "";
+        regPassword = "";
+        regConfirmPassword = "";
+    }
+
+    private async Task CloseEmailConfirmation()
+    {
+        showEmailConfirmation = false;
+        showLogin = true;
+        loginMessage = "Please check your email and verify your account before logging in.";
+        loginMessageSeverity = Severity.Info;
     }
 
     private async Task HandleRegister()
     {
-        // var session = await SupabaseService.SignUpAsync(regEmail, regPassword);
-
-        // if (session?.User != null)
-        // {
-        //     Console.WriteLine("Session.User.Id: " + session.User.Id); ✅ DEBUG
-        //     Console.WriteLine("Session.User.Email: " + session.User.Email);
-        //     message = "Registered successfully!";
-        //     var user = session.User;
-        //     await SupabaseService.InsertUserIfNotExistsAsync(Guid.Parse(session.User.Id), session.User.Email, regName);
-
-        //     Console.WriteLine("✅ InsertUserIfNotExistsAsync called");
-        // }
-        // else
-        // {
-        //     message = "Signup failed!";
-        // }
-
-        // showRegister = false;
-        // showLogin = true;
-
-        // regEmail = "";
-        // regPassword = "";
-        // regConfirmPassword = "";
-        // regName = "";
+        if (string.IsNullOrWhiteSpace(regName) || string.IsNullOrWhiteSpace(regEmail) ||
+            string.IsNullOrWhiteSpace(regPassword) || string.IsNullOrWhiteSpace(regConfirmPassword))
+        {
+            message = "All fields are required";
+            messageSeverity = Severity.Warning;
+            return;
+        }
 
         if (regPassword != regConfirmPassword)
         {
-            message = "Password doesn't match";
+            message = "Passwords don't match";
+            messageSeverity = Severity.Error;
             return;
         }
-        var signUpPayload = new
-        {
-            email = regEmail,
-            password = regPassword
-        };
 
+        if (regPassword.Length < 6)
+        {
+            message = "Password must be at least 6 characters";
+            messageSeverity = Severity.Warning;
+            return;
+        }
 
         try
         {
-            var response = await http.PostAsJsonAsync("https://localhost:7193/api/Auth/supabase-signup", signUpPayload);
+            isRegistering = true;
+            message = "Creating your account...";
+            messageSeverity = Severity.Info;
+            StateHasChanged();
+
+            var signupJson = $"{{\"email\":\"{regEmail}\",\"password\":\"{regPassword}\"}}";
+            var signupContent = new StringContent(signupJson, System.Text.Encoding.UTF8, "application/json");
+
+            var response = await http.PostAsync("/api/Auth/supabase-signup", signupContent);
 
             if (response.IsSuccessStatusCode)
             {
-                message = "✅ Registration successful!";
-                data = new BlogData
+                Console.WriteLine("✅ Supabase signup successful");
+
+                var registerJson = $"{{\"userName\":\"{regName}\",\"email\":\"{regEmail}\",\"password\":\"{regPassword}\"}}";
+                var registerContent = new StringContent(registerJson, System.Text.Encoding.UTF8, "application/json");
+
+                var mongoResponse = await http.PostAsync("/api/Auth/register", registerContent);
+
+                if (mongoResponse.IsSuccessStatusCode)
                 {
-                    UserName = regName,
-                    Email = regEmail,
-                    Password = regPassword,
+                    Console.WriteLine("✅ MongoDB registration successful");
 
-                };
+                    // Show email confirmation screen
+                    showRegister = false;
+                    showEmailConfirmation = true;
 
-                // Save user to MongoDB
-                await http.PostAsJsonAsync($"https://localhost:7193/api/Auth/register", data);
-                
+                    // Clear form
+                    regName = "";
+                    regPassword = "";
+                    regConfirmPassword = "";
+                    message = "";
+                }
+                else
+                {
+                    var mongoError = await mongoResponse.Content.ReadAsStringAsync();
+                    Console.WriteLine($"❌ MongoDB error: {mongoError}");
+                    message = "Account created but profile setup failed. Please contact support.";
+                    messageSeverity = Severity.Error;
+                }
             }
             else
             {
                 var error = await response.Content.ReadAsStringAsync();
-                message = $"❌ Failed to register via Supabase: {error}";
-            }
-            
-        }
+                Console.WriteLine($"❌ Supabase signup error: {error}");
 
+                if (error.Contains("already registered") || error.Contains("already exists"))
+                {
+                    message = "This email is already registered. Please login instead.";
+                }
+                else
+                {
+                    message = "Registration failed. Please try again.";
+                }
+                messageSeverity = Severity.Error;
+            }
+        }
         catch (Exception ex)
         {
-            message = $"🚨 Unexpected error: {ex.Message}";
+            Console.WriteLine($"🚨 Registration exception: {ex.Message}");
+            message = $"Unexpected error: {ex.Message}";
+            messageSeverity = Severity.Error;
         }
-   
+        finally
+        {
+            isRegistering = false;
+            StateHasChanged();
+        }
     }
 
     private async Task HandleLogin()
     {
-        var payload = new
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
         {
-            email = email,
-            password = password
-        };
+            loginMessage = "Please enter both email and password";
+            loginMessageSeverity = Severity.Warning;
+            return;
+        }
 
         try
         {
-            var response = await http.PostAsJsonAsync("https://localhost:7193/api/Auth/supabase-login", payload);
+            isLoggingIn = true;
+            loginMessage = "";
+            StateHasChanged();
+
+            var json = $"{{\"email\":\"{email}\",\"password\":\"{password}\"}}";
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+
+            var response = await http.PostAsync("/api/Auth/supabase-login", content);
 
             if (response.IsSuccessStatusCode)
             {
-                var json = await response.Content.ReadFromJsonAsync<JsonElement>();
-                var jwt = json.GetProperty("token").GetString();
+                var responseText = await response.Content.ReadAsStringAsync();
+                var jsonDoc = JsonDocument.Parse(responseText);
+                var jwt = jsonDoc.RootElement.GetProperty("token").GetString();
 
-                // Store the JWT in localStorage
                 await JS.InvokeVoidAsync("localStorage.setItem", "jwt", jwt);
 
-                message = "✅ Login successful!";
-                //Data.Email = email;
-                Navigation.NavigateTo("/mainpage");
+                Console.WriteLine("Login successful, navigating...");
+                await JS.InvokeVoidAsync("eval", "window.location.href = '/mainpage';");
             }
             else
             {
                 var error = await response.Content.ReadAsStringAsync();
-                message = $"❌ Login failed: {error}";
+                Console.WriteLine($"❌ Login failed: {error}");
+
+                if (error.Contains("Invalid login credentials") || error.Contains("invalid_grant"))
+                {
+                    loginMessage = "Invalid email or password. Please try again.";
+                }
+                else if (error.Contains("Email not confirmed"))
+                {
+                    loginMessage = "Please verify your email before logging in. Check your inbox for the confirmation link.";
+                }
+                else
+                {
+                    loginMessage = "Login failed. Please check your credentials and try again.";
+                }
+
+                loginMessageSeverity = Severity.Error;
+                StateHasChanged();
             }
         }
         catch (Exception ex)
         {
-            message = $"🚨 Unexpected error: {ex.Message}";
+            Console.WriteLine($"🚨 Exception: {ex.Message}");
+            loginMessage = "An error occurred during login. Please try again.";
+            loginMessageSeverity = Severity.Error;
+            StateHasChanged();
+        }
+        finally
+        {
+            isLoggingIn = false;
+            StateHasChanged();
         }
     }
 
@@ -416,8 +549,4 @@
 
         Navigation.NavigateTo(authUrl.ToString(), forceLoad: true);
     }
-
 }
-
-
-   

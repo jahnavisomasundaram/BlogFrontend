@@ -21,7 +21,7 @@
             if (!string.IsNullOrEmpty(accessToken))
             {
                 // Send it to your backend
-                var response = await Http.PostAsJsonAsync("https://localhost:7193/api/Auth/google-oauth", new { AccessToken = accessToken });
+                var response = await Http.PostAsJsonAsync("/Auth/google-oauth", new { AccessToken = accessToken });
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -41,7 +41,7 @@
                         UserName = userInfo.name
                     };
                     Console.WriteLine(userToStore.Email);
-                    await Http.PostAsJsonAsync($"https://localhost:7193/api/Auth/register", userToStore);
+                    await Http.PostAsJsonAsync($"/api/Auth/register", userToStore);
 
                     Data.Email = userInfo?.email; // Set your Data.Email property if needed
                     Navigation.NavigateTo("/mainpage");

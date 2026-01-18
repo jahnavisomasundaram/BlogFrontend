@@ -2,270 +2,460 @@
 @using BlogApp.Models
 @using System.Net.Http.Headers
 @using System.Text.Json
+@using Newtonsoft.Json
+
+@using SystemJsonSerializer = System.Text.Json.JsonSerializer
+@using SystemJsonElement = System.Text.Json.JsonElement
 @inject NavigationManager Navigation
-@* @inject SupabaseService SupabaseService *@
 @inject UserData Data
 @layout GeneralLayout
 @inject HttpClient http
 @inject IJSRuntime JS
 
-<MudContainer MaxWidth="MaxWidth.Medium" Class="flex justify-center items-center my-10" >
-    <MudPaper Elevation="7" Class="p-8 rounded-xl w-full" Style="padding:20px">
+<MudContainer MaxWidth="MaxWidth.Medium" Class="flex justify-center items-center my-10">
+    <MudPaper Elevation="3" Class="p-8 rounded-xl w-full" Style="padding: 30px;">
 
-        <!-- Heading -->
-        <MudText Typo="Typo.h4" Class="mb-6 font-semibold text-gray-700">
+        <MudText Typo="Typo.h4" Class="mb-6 font-bold text-gray-800" Style="font-weight: 700;">
             Write Your Story
         </MudText>
 
-        <!-- Title -->
         <MudTextField @bind-Value="Title"
+                      Label="Title"
                       Placeholder="Give your blog a catchy title"
                       Variant="Variant.Outlined"
                       FullWidth="true"
-                      Class="mb-3" />
+                      Class="mb-4" />
 
-        <!-- Summary -->
         <MudTextField @bind-Value="Subtitle"
-                      Placeholder="Add brief summary"
+                      Label="Subtitle"
+                      Placeholder="Add a brief summary"
                       Variant="Variant.Outlined"
                       FullWidth="true"
-                      Class="mb-3" />
+                      Class="mb-4" />
 
-        <!-- Textarea -->
         <MudTextField @bind-Value="Content"
+                      Label="Content"
                       Placeholder="Start writing your story here..."
                       Variant="Variant.Outlined"
                       FullWidth="true"
-                      Lines="6"
-                      Class="mb-4" />
+                      Lines="8"
+                      Class="mb-5" />
 
-        <!-- Upload Image -->
-        <MudText Typo="Typo.subtitle2" Class="mb-2 text-gray-600">Upload Image</MudText>
+        <MudText Typo="Typo.subtitle2" Class="mb-2 font-bold text-gray-700">Cover Image</MudText>
 
-        <MudPaper Outlined="true" Class="p-6 border-dashed border-2 rounded-lg flex justify-center items-center text-center mb-4" Style="min-height:140px">
-            <div>
-                <div class="text-gray-500 mb-2" style="padding-top:15px">Drag and drop an image here or choose file</div>
-                @* <MudButton Variant="Variant.Outlined" Color="Color.Primary">
-                    Browse Files
-                </MudButton> *@
-                <InputFile OnChange="UploadImage" class="hidden" />
+        <MudPaper Outlined="true"
+                  Class="p-4 border-dashed border-2 rounded-lg flex flex-column justify-center items-center text-center mb-5 hover:bg-gray-50"
+                  Style="min-height:120px; border-color: #bdbdbd; cursor: pointer; border-style: dashed; border-width: 2px; position: relative;">
+
+            <div class="d-flex flex-column align-center justify-center w-100 h-100">
+                <MudIcon Icon="@Icons.Material.Filled.CloudUpload" Size="Size.Large" Class="text-gray-400 mb-2" />
+                <div class="text-gray-600">Drag and drop an image here or click to browse</div>
             </div>
+
+            <InputFile id="fileInput" OnChange="UploadImage" accept="image/*"
+                       style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index: 10;" />
         </MudPaper>
 
         @if (!string.IsNullOrWhiteSpace(PreviewImageUrl))
         {
-            <img src="@PreviewImageUrl" alt="Image Preview" style="max-height: 200px; border-radius: 10px; margin-bottom:15px;" />
+            <div class="mb-5 d-flex justify-center relative">
+                <img src="@PreviewImageUrl" alt="Image Preview" style="max-height: 250px; width: auto; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" />
+                <MudIconButton Icon="@Icons.Material.Filled.Close"
+                               Color="Color.Error"
+                               Size="Size.Small"
+                               Variant="Variant.Filled"
+                               OnClick="@(() => { PreviewImageUrl = null; SelectedImageFile = null; })"
+                               Style="position: absolute; top: 5px; right: 5px;" />
+            </div>
         }
 
-        <!-- Visibility -->
-        <MudRadioGroup T="string" @bind-Value="Visibility" Orientation="Orientation.Horizontal">
-            <MudRadio T="string" Value="@("Public")" Label="Public" />
-            <MudRadio T="string" Value="@("Private")" Label="Private" />
-        </MudRadioGroup>
+        <MudDivider Class="my-6" />
 
-        <MudDatePicker @bind-Date="ScheduledPublishDate" Label="Schedule Publish Date" Required="true" />
-        <MudTimePicker Time="ScheduledPublishTime" TimeChanged="OnTimeChanged" Label="Schedule Publish Time" Required="true" />
+        <MudGrid Spacing="4">
+            <MudItem xs="12" sm="6">
+                <MudText Typo="Typo.subtitle2" Class="mb-2 font-bold text-gray-700">Visibility</MudText>
+                <div class="radio-group">
+                    <label class="radio-option @(Visibility == "Public" ? "selected" : "")" @onclick="@(() => Visibility = "Public")">
+                        <input type="radio" name="visibility" checked="@(Visibility == "Public")" />
+                        <MudIcon Icon="@Icons.Material.Filled.Public" Size="Size.Small" Class="mr-2" Style="color: #1976d2;" />
+                        <span>Public</span>
+                    </label>
+                    <label class="radio-option @(Visibility == "Private" ? "selected" : "")" @onclick="@(() => Visibility = "Private")">
+                        <input type="radio" name="visibility" checked="@(Visibility == "Private")" />
+                        <MudIcon Icon="@Icons.Material.Filled.Lock" Size="Size.Small" Class="mr-2" Style="color: #757575;" />
+                        <span>Private</span>
+                    </label>
+                </div>
+            </MudItem>
 
-        <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="AddBlog" Class="rounded-full px-6">
-            Schedule Post
-        </MudButton>
+            <MudItem xs="12" sm="6">
+                <MudText Typo="Typo.subtitle2" Class="mb-2 font-bold text-gray-700">Publishing</MudText>
+                <div class="radio-group">
+                    <label class="radio-option @(PublishTiming == "Now" ? "selected" : "")" @onclick="@(() => PublishTiming = "Now")">
+                        <input type="radio" name="publishing" checked="@(PublishTiming == "Now")" />
+                        <MudIcon Icon="@Icons.Material.Filled.Send" Size="Size.Small" Class="mr-2" Style="color: #4caf50;" />
+                        <span>Publish Now</span>
+                    </label>
+                    <label class="radio-option @(PublishTiming == "Later" ? "selected" : "")" @onclick="@(() => PublishTiming = "Later")">
+                        <input type="radio" name="publishing" checked="@(PublishTiming == "Later")" />
+                        <MudIcon Icon="@Icons.Material.Filled.Schedule" Size="Size.Small" Class="mr-2" Style="color: #ff9800;" />
+                        <span>Schedule Later</span>
+                    </label>
+                </div>
+            </MudItem>
+        </MudGrid>
 
+        @if (PublishTiming == "Later")
+        {
+            <MudPaper Class="mt-4 pa-4 rounded-lg" Elevation="0" Style="background-color: #f5f7fa; border: 1px solid #e0e0e0;">
+                <MudGrid>
 
-        <!-- Buttons -->
-        <div class="flex justify-between items-center mt-6">
-            <MudButton Variant="Variant.Outlined"
-                       Color="Color.Default"
-                       Disabled="true"
-                       Class="rounded-full px-6">
-                Save as Draft
-            </MudButton>
+                    <MudItem xs="12" sm="6">
+                        <MudText Typo="Typo.subtitle2" Class="mb-2 font-bold text-gray-700">Select Date</MudText>
+                        <input type="date"
+                               @bind="ScheduledDate"
+                               min="@minDate"
+                               class="custom-date-input" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudText Typo="Typo.subtitle2" Class="mb-2 font-bold text-gray-700">Select Time</MudText>
 
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Success"
-                       OnClick="AddBlog"
-                       Class="rounded-full px-6">
-                Publish
-            </MudButton>
+                        <input type="time"
+                               @bind="ScheduledTime"
+                               class="custom-time-input" />
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        }
+
+        <div class="d-flex justify-space-between align-center mt-8">
+            <MudButton Variant="Variant.Text" Color="Color.Secondary" Class="rounded-pill px-4">Cancel</MudButton>
+
+            <MudStack Row="true" Spacing="2">
+                @* <MudButton Variant="Variant.Outlined" Color="Color.Default" Disabled="true" Class="rounded-pill px-6">Save Draft</MudButton> *@
+
+                <MudButton Variant="Variant.Filled"
+                           Color="@(PublishTiming == "Later" ? Color.Warning : Color.Success)"
+                           OnClick="AddBlog"
+                           StartIcon="@(PublishTiming == "Later" ? Icons.Material.Filled.ScheduleSend : Icons.Material.Filled.RocketLaunch)"
+                           Class="rounded-pill px-6 font-bold">
+                    @(PublishTiming == "Later" ? "Schedule Post" : "Publish Now")
+                </MudButton>
+            </MudStack>
         </div>
+
+        @if (ShowSuccessMessage)
+        {
+            <MudAlert Severity="Severity.Success" Class="mt-4">@SuccessMessage</MudAlert>
+        }
 
     </MudPaper>
 </MudContainer>
 
-@code{
+@code {
+
+    public class BlogCreateDto
+    {
+        public string Title { get; set; }
+        public string Subtitle { get; set; }
+        public string Content { get; set; }
+        public string Image { get; set; }
+        public string Visibility { get; set; }
+        public DateTime ScheduledPublishDateTime { get; set; }
+    }
+
     public string Title { get; set; } = "";
     public string Subtitle { get; set; } = "";
     public string Content { get; set; } = "";
 
-    //private byte[] ImageBytes;
-
-    //private string? UploadedImageUrl;
-
-
     private IBrowserFile? SelectedImageFile;
     private string? PreviewImageUrl;
-
 
     private string? SuccessMessage = null;
     private bool ShowSuccessMessage = false;
 
     private string Visibility { get; set; } = "Public";
+    private string PublishTiming { get; set; } = "Now";
 
-    // public DateTime? ScheduledPublishDate { get; set; } = DateTime.Today;
-    // public TimeSpan? ScheduledPublishTime { get; set; } = TimeSpan.Zero;
+    // Replace DateTime/TimeSpan with strings
+    private DateTime ScheduledDate { get; set; } = DateTime.Today;
+    private DateTime ScheduledTime { get; set; } = DateTime.Now.AddHours(1);
 
+    private string minDate => DateTime.Today.ToString("yyyy-MM-dd");
+
+
+    // private Task OnTimeChanged(TimeSpan? newTime)
+    // {
+    //     ScheduledPublishTime = newTime;
+    //     return Task.CompletedTask;
+    // }
 
     // private DateTime? GetScheduledPublishDateTime() => ScheduledPublishDate?.Date + ScheduledPublishTime;
 
-    public DateTime? ScheduledPublishDate { get; set; } = DateTime.Today;
-    public TimeSpan? ScheduledPublishTime { get; set; } = TimeSpan.Zero;
+    // private DateTime? GetScheduledPublishDateTime()
+    // {
+    //     try
+    //     {
+    //         if (string.IsNullOrWhiteSpace(ScheduledDateString) || string.IsNullOrWhiteSpace(ScheduledTimeString))
+    //             return null;
 
-    private Task OnTimeChanged(TimeSpan? newTime)
+    //         var date = DateTime.Parse(ScheduledDateString);
+    //         var time = TimeSpan.Parse(ScheduledTimeString);
+    //         return date.Date + time;
+    //     }
+    //     catch
+    //     {
+    //         return null;
+    //     }
+    // }
+
+    private DateTime? GetScheduledPublishDateTime()
     {
-        ScheduledPublishTime = newTime;
-        return Task.CompletedTask;
+        try
+        {
+            // ✅ FIXED: We extract .TimeOfDay from the DateTime property
+            return ScheduledDate.Date + ScheduledTime.TimeOfDay;
+        }
+        catch
+        {
+            return null;
+        }
     }
-
-    private DateTime? GetScheduledPublishDateTime() => ScheduledPublishDate?.Date + ScheduledPublishTime;
-
 
     protected override async Task OnInitializedAsync()
     {
+        ScheduledDate = DateTime.Today;
+        ScheduledTime = DateTime.Now.AddHours(1);
+
         var jwt = await JS.InvokeAsync<string>("localStorage.getItem", "jwt");
 
         if (string.IsNullOrWhiteSpace(jwt))
         {
-            Navigation.NavigateTo("/", forceLoad: true);
+            await JS.InvokeVoidAsync("eval", "window.location.href = '/';");
             return;
         }
 
         http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-
-        
     }
 
-    // private async Task OnFileSelected(InputFileChangeEventArgs e)
+    // private async Task UploadImage(InputFileChangeEventArgs e)
     // {
-    //     var file = e.File;
-
-    //     if (file != null)
-    //     {
-    //         using var stream = file.OpenReadStream(maxAllowedSize: 10_000_000); limit: 10MB
-    //         using var ms = new MemoryStream();
-    //         await stream.CopyToAsync(ms);
-    //         ImageBytes = ms.ToArray();
-    //     }
+    //     SelectedImageFile = e.File;
+    //     Limit increased to 5MB
+    //     using var stream = SelectedImageFile.OpenReadStream(5 * 1024 * 1024);
+    //     using var ms = new MemoryStream();
+    //     await stream.CopyToAsync(ms);
+    //     var base64 = Convert.ToBase64String(ms.ToArray());
+    //     PreviewImageUrl = $"data:{SelectedImageFile.ContentType};base64,{base64}";
     // }
 
     private async Task UploadImage(InputFileChangeEventArgs e)
     {
-        SelectedImageFile = e.File;
+        try
+        {
+            SelectedImageFile = e.File;
 
-        using var stream = SelectedImageFile.OpenReadStream(5 * 1024 * 1024);
-        using var ms = new MemoryStream();
-        await stream.CopyToAsync(ms);
-        var base64 = Convert.ToBase64String(ms.ToArray());
-        PreviewImageUrl = $"data:{SelectedImageFile.ContentType};base64,{base64}";
+            if (SelectedImageFile == null)
+                return;
+
+            const long maxFileSize = 5 * 1024 * 1024; // 5MB
+
+            using var stream = SelectedImageFile.OpenReadStream(maxFileSize);
+            using var ms = new MemoryStream();
+            await stream.CopyToAsync(ms);
+            var bytes = ms.ToArray();
+            var base64 = Convert.ToBase64String(bytes);
+            PreviewImageUrl = $"data:{SelectedImageFile.ContentType};base64,{base64}";
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error uploading image: {ex.Message}");
+            SuccessMessage = "❌ Error uploading image. Please try again.";
+            ShowSuccessMessage = true;
+            await Task.Delay(3000);
+            ShowSuccessMessage = false;
+        }
     }
 
     private async Task AddBlog()
     {
+        // string? imageUrl = null;
+
+        // if (SelectedImageFile != null)
+        // {
+        //     using var content = new MultipartFormDataContent();
+        //     using var stream = SelectedImageFile.OpenReadStream(5 * 1024 * 1024);
+        //     var fileContent = new StreamContent(stream);
+        //     content.Add(fileContent, "file", SelectedImageFile.Name);
+
+        //     var imageResponse = await http.PostAsync("/api/Auth/upload", content);
+
+        //     if (imageResponse.IsSuccessStatusCode)
+        //     {
+        //         imageUrl = await imageResponse.Content.ReadAsStringAsync();
+        //     }
+        //     else
+        //     {
+        //         Console.WriteLine("❌ Image upload failed.");
+        //         return;
+        //     }
+        // }
+
         string? imageUrl = null;
 
         if (SelectedImageFile != null)
         {
-            using var content = new MultipartFormDataContent();
-            var fileContent = new StreamContent(SelectedImageFile.OpenReadStream(5 * 1024 * 1024));
-            content.Add(fileContent, "file", SelectedImageFile.Name);
-
-            var imageResponse = await http.PostAsync("https://localhost:7193/api/Auth/upload", content);
-
-            if (imageResponse.IsSuccessStatusCode)
+            try
             {
-                imageUrl = await imageResponse.Content.ReadAsStringAsync();
+                using var content = new MultipartFormDataContent();
+                const long maxFileSize = 5 * 1024 * 1024;
+                using var stream = SelectedImageFile.OpenReadStream(maxFileSize);
+                var fileContent = new StreamContent(stream);
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue(SelectedImageFile.ContentType);
+                content.Add(fileContent, "file", SelectedImageFile.Name);
+
+                var imageResponse = await http.PostAsync("/api/Auth/upload", content);
+
+                if (imageResponse.IsSuccessStatusCode)
+                {
+                    imageUrl = await imageResponse.Content.ReadAsStringAsync();
+                    imageUrl = imageUrl.Trim('"'); // Remove quotes if present
+                }
+                else
+                {
+                    Console.WriteLine("❌ Image upload failed.");
+                    SuccessMessage = "❌ Image upload failed.";
+                    ShowSuccessMessage = true;
+                    await Task.Delay(3000);
+                    ShowSuccessMessage = false;
+                    return;
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine("❌ Image upload failed.");
+                Console.WriteLine($"❌ Image upload error: {ex.Message}");
+                SuccessMessage = $"❌ Error: {ex.Message}";
+                ShowSuccessMessage = true;
+                await Task.Delay(3000);
+                ShowSuccessMessage = false;
                 return;
             }
         }
 
-        var scheduledDateTime = GetScheduledPublishDateTime();
+        DateTime finalPublishTime;
 
-
-        var blog = new
+        if (PublishTiming == "Now")
         {
-            Title,
-            Subtitle,
-            Content,
-            Image = imageUrl,
-            Visibility = Visibility,
-            ScheduledPublishDateTime = scheduledDateTime
+            finalPublishTime = DateTime.UtcNow;
+        }
+        else
+        {
+            var pickedTime = GetScheduledPublishDateTime();
 
+            if (pickedTime == null)
+            {
+                SuccessMessage = "❌ Please select a valid date and time!";
+                ShowSuccessMessage = true;
+                await Task.Delay(3000);
+                ShowSuccessMessage = false;
+                return;
+            }
+
+            if (pickedTime <= DateTime.Now)
+            {
+                SuccessMessage = "❌ Scheduled time must be in the future!";
+                ShowSuccessMessage = true;
+                await Task.Delay(3000);
+                ShowSuccessMessage = false;
+                return;
+            }
+
+            finalPublishTime = pickedTime.Value.ToUniversalTime();
+        }
+
+        Console.WriteLine($"📝 Creating blog scheduled for: {GetScheduledPublishDateTime()}");
+        Console.WriteLine($"📝 UTC time: {finalPublishTime}");
+
+        // var blog = new
+        // {
+        //     Title,
+        //     Subtitle,
+        //     Content,
+        //     Image = imageUrl,
+        //     Visibility = Visibility,
+        //     ScheduledPublishDateTime = finalPublishTime
+        // };
+
+        // var response = await http.PostAsJsonAsync("/api/Auth/create-blog", blog);
+
+        // Console.WriteLine($"Visibility sent: {Visibility}");
+        var blog = new BlogCreateDto
+        {
+            Title = this.Title,
+            Subtitle = this.Subtitle,
+            Content = this.Content,
+            Image = imageUrl ?? "",
+            Visibility = this.Visibility,
+            ScheduledPublishDateTime = finalPublishTime
         };
 
-        var response = await http.PostAsJsonAsync("https://localhost:7193/api/Auth/create-blog", blog);
+        var jsonString = SystemJsonSerializer.Serialize(blog);
+        var content2 = new StringContent(jsonString, System.Text.Encoding.UTF8, "application/json");
 
+        var response = await http.PostAsync("/api/Auth/create-blog", content2);
 
         Console.WriteLine($"Visibility sent: {Visibility}");
 
-
         if (response.IsSuccessStatusCode)
         {
-
-            // var notifyPayload = new
-            // {
-            //     AuthorEmail = Data.Email,
-            //     AuthorUserName = Data.Name,
-            //     Title = Title
-            // };
-
-            // var notifyResponse = await http.PostAsJsonAsync("https:localhost:7193/Blog/postblog", notifyPayload);
-
-            // if (!notifyResponse.IsSuccessStatusCode)
-            // {
-            //     Console.WriteLine("⚠️ Notification send failed.");
-            // }
-
-            var createdBlog = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+            var responseJson = await response.Content.ReadAsStringAsync();
+            var createdBlog = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseJson);
             var blogId = createdBlog?["blogId"]?.ToString();
+            string blogUrl = $"/blog/{blogId}";
 
-            string blogUrl = $"https://localhost:7157/blog/{blogId}";
-
-            var followersResponse = await http.GetFromJsonAsync<List<string>>($"https://localhost:7193/api/Auth/get-followers?authorEmail={Data.Email}");
-
-            if (followersResponse != null && followersResponse.Count > 0)
+            try
             {
-                foreach (var followerEmail in followersResponse)
+                var followersResponse = await http.GetAsync($"/api/Auth/get-followers?authorEmail={Data.Email}");
+
+                if (followersResponse.IsSuccessStatusCode)
                 {
-                    await JS.InvokeVoidAsync(
-                        "sendBlogNotification",
-                        followerEmail,
-                        Title,
-                        Data.Email,
-                        blogUrl
-                    );
-
-                    //await JS.InvokeVoidAsync("sendNotification", followerEmail, blog.Title, null, Data.Email);
-
+                    var followersJson = await followersResponse.Content.ReadAsStringAsync();
+                    var followersList = JsonConvert.DeserializeObject<List<string>>(followersJson);
+                    foreach (var followerEmail in followersList)
+                    {
+                        await JS.InvokeVoidAsync("sendBlogNotification", followerEmail, Title, Data.Email, blogUrl);
+                    }
+                    Console.WriteLine("📧 Blog notifications sent via EmailJS.");
                 }
-                Console.WriteLine("📧 Blog notifications sent via EmailJS.");
+                else
+                {
+                    Console.WriteLine("ℹ No followers to notify.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine("ℹ No followers to notify.");
+                Console.WriteLine($"⚠️ Notification error: {ex.Message}");
             }
 
             Console.WriteLine("✅ Uploaded with image.");
+
+            // Reset Form
             Title = "";
             Subtitle = "";
             Content = "";
-
-            SuccessMessage = "✅ Blog published successfully!";
-            ShowSuccessMessage = true;
             PreviewImageUrl = "";
             SelectedImageFile = null;
+            PublishTiming = "Now";
+            ScheduledDate = DateTime.Today;
+            ScheduledTime = DateTime.Now.AddHours(1);
 
+            SuccessMessage = PublishTiming == "Later"
+                ? "✅ Blog scheduled successfully!"
+                : "✅ Blog published successfully!";
+
+            ShowSuccessMessage = true;
             await Task.Delay(3000);
             ShowSuccessMessage = false;
         }
@@ -273,8 +463,71 @@
         {
             Console.WriteLine("❌ Failed.");
         }
-        
     }
-    
 }
 
+<style>
+    .radio-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .radio-option {
+        display: flex;
+        align-items: center;
+        padding: 12px 16px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background-color: white;
+    }
+
+        .radio-option:hover {
+            border-color: #1976d2;
+            background-color: #f5f5f5;
+        }
+
+        .radio-option.selected {
+            border-color: #1976d2;
+            background-color: #e3f2fd;
+            font-weight: 500;
+        }
+
+        .radio-option input[type="radio"] {
+            margin-right: 12px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .radio-option span {
+            flex: 1;
+        }
+
+    .custom-date-input,
+    .custom-time-input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: inherit;
+        background-color: white;
+        cursor: pointer;
+        transition: border-color 0.2s ease;
+    }
+
+        .custom-date-input:hover,
+        .custom-time-input:hover {
+            border-color: #1976d2;
+        }
+
+        .custom-date-input:focus,
+        .custom-time-input:focus {
+            outline: none;
+            border-color: #1976d2;
+            box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+        }
+</style>

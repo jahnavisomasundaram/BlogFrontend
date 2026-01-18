@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "BTsHlqC87Xo=",
+  "dgSpecHash": "iCbl5jUv6YU=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\Wise Work\\BlogApp\\BlogApp\\BlogApp\\BlogApp\\BlogApp.csproj",
+  "projectFilePath": "C:\\Users\\Jahnavi\\OneDrive\\Desktop\\BlogApp\\BlogApp\\BlogApp.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\Jahnavi\\.nuget\\packages\\markdig\\0.44.0\\markdig.0.44.0.nupkg.sha512",
     "C:\\Users\\Jahnavi\\.nuget\\packages\\microsoft.aspnetcore.authorization\\8.0.17\\microsoft.aspnetcore.authorization.8.0.17.nupkg.sha512",
     "C:\\Users\\Jahnavi\\.nuget\\packages\\microsoft.aspnetcore.components\\8.0.17\\microsoft.aspnetcore.components.8.0.17.nupkg.sha512",
     "C:\\Users\\Jahnavi\\.nuget\\packages\\microsoft.aspnetcore.components.analyzers\\8.0.17\\microsoft.aspnetcore.components.analyzers.8.0.17.nupkg.sha512",
@@ -40,16 +41,17 @@
     "C:\\Users\\Jahnavi\\.nuget\\packages\\microsoft.extensions.primitives\\9.0.7\\microsoft.extensions.primitives.9.0.7.nupkg.sha512",
     "C:\\Users\\Jahnavi\\.nuget\\packages\\microsoft.jsinterop\\8.0.17\\microsoft.jsinterop.8.0.17.nupkg.sha512",
     "C:\\Users\\Jahnavi\\.nuget\\packages\\microsoft.jsinterop.webassembly\\8.0.17\\microsoft.jsinterop.webassembly.8.0.17.nupkg.sha512",
-    "C:\\Users\\Jahnavi\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.20\\microsoft.net.illink.tasks.8.0.20.nupkg.sha512",
-    "C:\\Users\\Jahnavi\\.nuget\\packages\\microsoft.net.sdk.webassembly.pack\\9.0.9\\microsoft.net.sdk.webassembly.pack.9.0.9.nupkg.sha512",
+    "C:\\Users\\Jahnavi\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.22\\microsoft.net.illink.tasks.8.0.22.nupkg.sha512",
+    "C:\\Users\\Jahnavi\\.nuget\\packages\\microsoft.net.sdk.webassembly.pack\\9.0.11\\microsoft.net.sdk.webassembly.pack.9.0.11.nupkg.sha512",
     "C:\\Users\\Jahnavi\\.nuget\\packages\\mudblazor\\8.8.0\\mudblazor.8.8.0.nupkg.sha512",
+    "C:\\Users\\Jahnavi\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
     "C:\\Users\\Jahnavi\\.nuget\\packages\\system.diagnostics.diagnosticsource\\9.0.7\\system.diagnostics.diagnosticsource.9.0.7.nupkg.sha512",
     "C:\\Users\\Jahnavi\\.nuget\\packages\\system.io.pipelines\\9.0.7\\system.io.pipelines.9.0.7.nupkg.sha512",
     "C:\\Users\\Jahnavi\\.nuget\\packages\\system.net.serversentevents\\9.0.7\\system.net.serversentevents.9.0.7.nupkg.sha512",
     "C:\\Users\\Jahnavi\\.nuget\\packages\\system.text.encodings.web\\9.0.7\\system.text.encodings.web.9.0.7.nupkg.sha512",
     "C:\\Users\\Jahnavi\\.nuget\\packages\\system.text.json\\9.0.7\\system.text.json.9.0.7.nupkg.sha512",
     "C:\\Users\\Jahnavi\\.nuget\\packages\\system.threading.channels\\9.0.7\\system.threading.channels.9.0.7.nupkg.sha512",
-    "C:\\Users\\Jahnavi\\.nuget\\packages\\microsoft.netcore.app.runtime.mono.browser-wasm\\8.0.20\\microsoft.netcore.app.runtime.mono.browser-wasm.8.0.20.nupkg.sha512"
+    "C:\\Users\\Jahnavi\\.nuget\\packages\\microsoft.netcore.app.runtime.mono.browser-wasm\\8.0.22\\microsoft.netcore.app.runtime.mono.browser-wasm.8.0.22.nupkg.sha512"
   ],
   "logs": []
 }

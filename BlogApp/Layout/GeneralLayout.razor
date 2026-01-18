@@ -3,249 +3,329 @@
 @using System.Text.Json
 @inherits LayoutComponentBase
 @inject IJSRuntime JS
-
-@using System.Net.Http.Headers
-
-@inject IJSRuntime JS
 @inject UserData Data
 @inject NavigationManager Navigation
 @inject HttpClient http
 
 <MudThemeProvider Theme="@currentTheme" @bind-IsDarkMode="@isDarkMode" />
 <MudPopoverProvider />
-
 <MudDialogProvider />
 <MudSnackbarProvider />
 
 <MudLayout>
-    @* UPDATED: The AppBar now contains all the common header elements *@
-    <MudAppBar Elevation="1">
+    
+    <MudAppBar Elevation="0" Class="gradient-appbar border-b-1" Fixed="true">
+        
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@DrawerToggle" />
-        <MudText Typo="Typo.h5" Class="ml-4">BlogNest</MudText>
+        
+        <MudIcon Icon="@Icons.Material.Filled.AutoStories" Color="Color.Inherit" Class="ml-3 mr-2" Size="Size.Large"/>
+        <MudText Typo="Typo.h6" Class="font-bold" Style="font-family: 'Montserrat', sans-serif;">BlogNest</MudText>
         
         <MudSpacer />
 
-        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+            
             <MudAutocomplete T="UserSearchResultDto" SearchFunc="SearchUsers"
                 ToStringFunc="@(u => u?.UserName)" MinCharacters="1" DebounceInterval="300" Clearable="true"
-                Variant="Variant.Filled" Dense="true" Placeholder="Search..."
-                Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
-                ValueChanged="OnUserSelected" Class="rounded-lg" Style="width: 250px;" />
+                Variant="Variant.Outlined" Margin="Margin.Dense" Placeholder="Search users..."
+                Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Inherit"
+                ValueChanged="OnUserSelected" Class="rounded-full mr-2 hidden sm:block glass-search" 
+                Style="width: 250px;" />
 
             <Notifications />
 
-            <MudIconButton Icon="@themeIcon" OnClick="ToggleTheme" Color="Color.Inherit" Title="Toggle Theme" />
+            <MudIconButton Icon="@themeIcon" OnClick="ToggleTheme" Color="Color.Inherit" />
             
-            <MudMenu AnchorOrigin="Origin.BottomRight">
+            <MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" LockScroll="true">
                 <ActivatorContent>
-                    <MudAvatar>
-                        @(!string.IsNullOrEmpty(Data.Email) ? Data.Email[0].ToString().ToUpper() : "?")
+                    <MudAvatar Color="Color.Surface" Variant="Variant.Filled" Class="cursor-pointer ml-2">
+                        <MudText Color="Color.Primary" Typo="Typo.subtitle2">
+                            @(!string.IsNullOrEmpty(Data.Email) ? Data.Email[0].ToString().ToUpper() : "?")
+                        </MudText>
                     </MudAvatar>
                 </ActivatorContent>
                 <ChildContent>
-                    <MudMenuItem OnClick="@(() => Navigation.NavigateTo("/profile"))">Profile</MudMenuItem>
-                    <MudMenuItem>Settings</MudMenuItem>
+                    <div class="pa-4 d-flex flex-column align-center">
+                        <MudAvatar Size="Size.Large" Color="Color.Primary">
+                             @(!string.IsNullOrEmpty(Data.Email) ? Data.Email[0].ToString().ToUpper() : "?")
+                        </MudAvatar>
+                        <MudText Typo="Typo.subtitle1" Class="mt-2 font-bold">@Data.Name</MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">@Data.Email</MudText>
+                    </div>
                     <MudDivider />
-                    <MudMenuItem OnClick="Logout">Logout</MudMenuItem>
+                    <MudMenuItem Icon="@Icons.Material.Filled.Person" @onclick="@(async () => await JS.InvokeVoidAsync("eval", $"window.location.href = '/profile';"))">Profile</MudMenuItem>
+                    <MudMenuItem Icon="@Icons.Material.Filled.Settings">Settings</MudMenuItem>
+                    <MudDivider />
+                    <MudMenuItem Icon="@Icons.Material.Filled.Logout" IconColor="Color.Error" OnClick="Logout">Logout</MudMenuItem>
                 </ChildContent>
             </MudMenu>
         </MudStack>
     </MudAppBar>
 
-    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="1" Variant="@DrawerVariant.Persistent">
-        <MudNavMenu Class="mt-4">
+    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="0" Variant="@DrawerVariant.Persistent" 
+               Class="gradient-drawer border-r-1">
+        
+        <MudDrawerHeader Class="d-flex align-center justify-center py-4">
+             <MudText Typo="Typo.caption" Style="letter-spacing: 2px; opacity: 0.8; color: white;">MAIN MENU</MudText>
+        </MudDrawerHeader>
+
+        <MudNavMenu Class="px-2">
+            <MudText Typo="Typo.overline" Class="ml-4 mt-2 mb-1" Style="color: rgba(255,255,255,0.6);">Overview</MudText>
+            
             <MudNavLink Href="/mainpage" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
-            <MudNavLink Href="/blogpage" Icon="@Icons.Material.Filled.PostAdd">New Post</MudNavLink>
-            <MudNavLink  Icon="@Icons.Material.Filled.Category">Category</MudNavLink>
+            <MudNavLink Href="/chatbot" Icon="@Icons.Material.Filled.SmartToy">AI Assistant</MudNavLink>
+
+            <MudText Typo="Typo.overline" Class="ml-4 mt-4 mb-1" Style="color: rgba(255,255,255,0.6);">Content</MudText>
+            
+            <MudNavLink Href="/blogpage" Icon="@Icons.Material.Filled.EditNote">Write Story</MudNavLink>
+            
+            <MudNavGroup Title="Categories" Icon="@Icons.Material.Filled.Category" Expanded="false" Class="white-text-group">
+                <MudNavLink Icon="@Icons.Material.Filled.Code" Class="pl-8" IconColor="Color.Inherit">Technology</MudNavLink>
+                <MudNavLink Icon="@Icons.Material.Filled.Favorite" Class="pl-8" IconColor="Color.Inherit">Lifestyle</MudNavLink>
+                <MudNavLink Icon="@Icons.Material.Filled.Flight" Class="pl-8" IconColor="Color.Inherit">Travel</MudNavLink>
+            </MudNavGroup>
         </MudNavMenu>
+
+        <MudSpacer />
+
+        <div class="pa-4">
+            <MudPaper Class="pa-4 rounded-xl d-flex flex-column align-center text-center glass-card" Elevation="0">
+                <div class="d-flex justify-center align-center mb-2" 
+                     Style="background: white; width: 40px; height: 40px; border-radius: 50%; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <MudIcon Icon="@Icons.Material.Filled.Star" Style="color: #4f46e5;" Size="Size.Small"/>
+                </div>
+            </MudPaper>
+        </div>
+
+        <MudText Typo="Typo.caption" Align="Align.Center" Class="mb-4" Style="color: rgba(255,255,255,0.4);">v1.0.0 • BlogNest</MudText>
     </MudDrawer>
 
-    @* SIMPLIFIED: The MainContent no longer contains the header *@
     <MudMainContent>
-        <div class="pa-6">
+        <div class="pa-6 fade-in">
             @Body
         </div>
     </MudMainContent>
 </MudLayout>
 
 @code {
-    private bool _drawerOpen = false;
+    private bool _drawerOpen = true; 
     private MudTheme currentTheme = new MudTheme();
     private bool isDarkMode;
     private string themeIcon => isDarkMode ? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode;
 
     private void DrawerToggle() => _drawerOpen = !_drawerOpen;
 
-
+    // Theme Definition
     private MudTheme AppTheme = new MudTheme()
     {
         PaletteLight = new PaletteLight()
         {
-            Background = "#F5F5F5",
+            Background = "#F8F9FA",
             Surface = "#FFFFFF",
-            Primary = "#1976D2",
-            AppbarBackground = "#0D47A1",
-            DrawerBackground = "#1565C0",
-            TextPrimary = "#000000"
+            Primary = "#4f46e5", 
+            Secondary = "#64748B",
+            AppbarBackground = "#FFFFFF", // Fallback
+            DrawerBackground = "#FFFFFF", // Fallback
+            TextPrimary = "#1E293B"
         },
         PaletteDark = new PaletteDark()
         {
             Black = "#27272f",
-            Background = "#32333d",
-            Surface = "#373740",
-            Primary = "#90CAF9",
-            AppbarBackground = "#212121",
+            Background = "#1a1a21",
+            Surface = "#27272f",
+            Primary = "#818cf8",
+            AppbarBackground = "#27272f",
             DrawerBackground = "#27272f",
             TextPrimary = "#FFFFFF"
+        },
+        LayoutProperties = new LayoutProperties()
+        {
+            DefaultBorderRadius = "8px"
         }
     };
+
+    // User Search Logic
+    private List<UserSearchResultDto> searchResults = new();
+    
+    private async Task<IEnumerable<UserSearchResultDto>> SearchUsers(string value, CancellationToken token)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return Array.Empty<UserSearchResultDto>();
+        try
+        {
+            var response = await http.GetFromJsonAsync<List<UserSearchResultDto>>($"https://localhost:7193/api/Auth/searchusers?query={value}", token);
+            return response ?? new List<UserSearchResultDto>();
+        }
+        catch { return Array.Empty<UserSearchResultDto>(); }
+    }
+
+    private void OnUserSelected(UserSearchResultDto user)
+    {
+        if (user != null) JS.InvokeVoidAsync("eval", $"window.location.href = '/profile1/{user.UserName}?email={user.Email}';");
+        
+    }
+
+    public class UserSearchResultDto 
+    { 
+        public string UserName { get; set; } 
+        public string Email { get; set; } 
+    }
 
     private async Task ToggleTheme()
     {
         isDarkMode = !isDarkMode;
         await JS.InvokeVoidAsync("localStorage.setItem", "isDarkMode", isDarkMode);
-        StateHasChanged();
     }
-
-    private List<UserSearchResultDto> searchResults = new();
-    private UserSearchResultDto selectedUser;
-
-    private async Task<IEnumerable<UserSearchResultDto>> SearchUsers(string value, CancellationToken token)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return Array.Empty<UserSearchResultDto>();
-
-        try
-        {
-            var response = await http.GetFromJsonAsync<List<UserSearchResultDto>>(
-                $"https://localhost:7193/api/Auth/searchusers?query={value}", token);
-
-            return response ?? new List<UserSearchResultDto>();
-        }
-        catch (OperationCanceledException)
-        {
-            return Array.Empty<UserSearchResultDto>();
-        }
-    }
-
-    private void OnUserSelected(UserSearchResultDto user)
-    {
-        if (user != null)
-        {
-            Navigation.NavigateTo($"/profile1/{user.UserName}?email={user.Email}");
-        }
-    }
-
-    public class UserSearchResultDto
-    {
-        public string UserName { get; set; }
-        public string Email { get; set; }
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        var jwt = await JS.InvokeAsync<string>("localStorage.getItem", "jwt");
-
-        if (string.IsNullOrWhiteSpace(jwt))
-        {
-            Navigation.NavigateTo("/", forceLoad: true);
-            return;
-        }
-
-        http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-
-        var claims = DecodeJwtPayload(jwt);
-
-        if (claims.TryGetValue("email", out var emailObj))
-        {
-            Data.Email = emailObj?.ToString();
-        }
-
-        if (claims.TryGetValue("name", out var nameObj))
-        {
-            Data.Name = nameObj?.ToString();
-        }
-
-        if (claims.TryGetValue("user_metadata", out var userMetaObj) && userMetaObj is JsonElement userMetaElement)
-        {
-            if (userMetaElement.TryGetProperty("name", out var nameElement))
-            {
-                Data.Name = nameElement.GetString();
-            }
-        }
-
-        var saved = await JS.InvokeAsync<string>("localStorage.getItem", "isDarkMode");
-        if (bool.TryParse(saved, out var savedMode))
-        {
-            isDarkMode = savedMode;
-        }
-        else
-        {
-            isDarkMode = false;
-        }
-
-        currentTheme = AppTheme;
-    }
-
-    private async Task BlogPage()
-    {
-        Navigation.NavigateTo("/blogpage");
-    }
-
+    
     private async Task Logout()
     {
         await JS.InvokeVoidAsync("localStorage.removeItem", "jwt");
         http.DefaultRequestHeaders.Authorization = null;
-        Navigation.NavigateTo("/", forceLoad: true);
+        await JS.InvokeVoidAsync("eval", "window.location.href = '/';");
+ 
     }
-
-    private void NavigateToMainPage()
+    
+    // Auth & Init
+    protected override async Task OnInitializedAsync()
     {
-        Navigation.NavigateTo("/mainpage");
+        var jwt = await JS.InvokeAsync<string>("localStorage.getItem", "jwt");
+        if (string.IsNullOrWhiteSpace(jwt))
+        {
+            await JS.InvokeVoidAsync("eval", "window.location.href = '/';");
+            return;
+        }
+        http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+        
+        var claims = DecodeJwtPayload(jwt);
+
+        if (claims.TryGetValue("email", out var emailObj)) Data.Email = emailObj?.ToString();
+        if (claims.TryGetValue("name", out var nameObj)) Data.Name = nameObj?.ToString();
+
+        if (string.IsNullOrWhiteSpace(Data.Name))
+        {
+             if (claims.TryGetValue("user_metadata", out var userMetaObj) && userMetaObj is JsonElement userMetaElement)
+            {
+                if (userMetaElement.TryGetProperty("name", out var nameElement)) Data.Name = nameElement.GetString();
+            }
+        }
+        
+        var saved = await JS.InvokeAsync<string>("localStorage.getItem", "isDarkMode");
+        if (bool.TryParse(saved, out var savedMode)) isDarkMode = savedMode;
+        
+        currentTheme = AppTheme;
     }
 
     private Dictionary<string, object> DecodeJwtPayload(string jwt)
     {
         var parts = jwt.Split('.');
-        if (parts.Length != 3)
-            throw new ArgumentException("Invalid JWT format");
+        if (parts.Length != 3) return new Dictionary<string, object>();
 
         var payload = parts[1];
         int padding = 4 - (payload.Length % 4);
-        if (padding < 4)
-            payload += new string('=', padding);
+        if (padding < 4) payload += new string('=', padding);
 
         var bytes = Convert.FromBase64String(payload);
         var json = System.Text.Encoding.UTF8.GetString(bytes);
 
-        return JsonSerializer.Deserialize<Dictionary<string, object>>(json)
-               ?? new Dictionary<string, object>();
+        return JsonSerializer.Deserialize<Dictionary<string, object>>(json) ?? new Dictionary<string, object>();
     }
 }
 
 <style>
-    .main-content-area {
-        padding: 2rem;
-    }
+    /* Google Font for Branding */
+    @@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap');
 
-    .mud-nav-link.active {
-        background-color: var(--mud-palette-primary);
+    /* === 1. TOP APP BAR GRADIENT === */
+    .gradient-appbar {
+        background: linear-gradient(90deg, #4338ca 0%, #7e22ce 100%) !important;
         color: white !important;
-        border-radius: 8px;
     }
 
-        .mud-nav-link.active .mud-icon-root {
-            color: white !important;
-        }
-
-    .support-card {
-        background-color: var(--mud-palette-primary-lighten);
-        border-radius: 12px;
-        text-align: center;
+    /* === 2. SIDE DRAWER GRADIENT === */
+    .gradient-drawer {
+        background: linear-gradient(180deg, #4338ca 0%, #7e22ce 100%) !important;
+        color: white !important;
+        border-right: none !important; /* Seamless Look */
     }
 
-    .mud-drawer-content {
-        display: flex;
-        flex-direction: column;
+    /* === 3. SEARCH BAR GLASS STYLE === */
+    .glass-search .mud-input-control-input-container {
+        background-color: rgba(255, 255, 255, 0.15) !important;
+        border-radius: 999px; /* Rounded pill */
+        backdrop-filter: blur(5px);
+    }
+    
+    /* Input text color */
+    .glass-search input.mud-input-slot {
+        color: white !important; 
+    }
+    
+    /* Placeholder color */
+    .glass-search input.mud-input-slot::placeholder {
+        color: rgba(255, 255, 255, 0.7) !important;
+    }
+    
+    /* Hover/Focus states for search */
+    .glass-search:hover .mud-input-control-input-container {
+        background-color: rgba(255, 255, 255, 0.25) !important;
+    }
+
+    /* === 4. DRAWER LINKS (WHITE) === */
+    .gradient-drawer .mud-nav-link {
+        color: rgba(255,255,255, 0.8) !important;
+        border-radius: 8px !important;
+        margin-bottom: 4px;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .gradient-drawer .mud-nav-link .mud-icon-root {
+        color: rgba(255,255,255, 0.8) !important;
+    }
+
+    .gradient-drawer .mud-nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+    }
+
+    /* Active State */
+    .gradient-drawer .mud-nav-link.active {
+        background-color: white !important; 
+        color: #4f46e5 !important;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .gradient-drawer .mud-nav-link.active .mud-icon-root {
+        color: #4f46e5 !important;
+    }
+
+    /* NavGroup */
+    .gradient-drawer .mud-nav-group-text,
+    .gradient-drawer .mud-nav-group-icon {
+        color: rgba(255,255,255, 0.8) !important;
+    }
+
+    /* Glass Card */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.15) !important;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Scrollbar */
+    .gradient-drawer .mud-drawer-content::-webkit-scrollbar {
+        width: 6px;
+    }
+    .gradient-drawer .mud-drawer-content::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,0.3);
+        border-radius: 10px;
+    }
+    
+    .fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 </style>

@@ -5,136 +5,373 @@
 @using System.Net;
 @using System.Net.Http.Headers
 @using BlogApp.Models
+@using Newtonsoft.Json
+
 @inject NavigationManager Navigation
 @inject UserData Data
-
 @inject HttpClient http
 
+<MudContainer MaxWidth="MaxWidth.Large" Class="py-12" Style="min-height:100vh;">
 
+    <div class="mb-10">
+        <MudText Typo="Typo.h3" Class="font-bold text-gray-900 mb-2 font-header">Discover</MudText>
+        <MudText Typo="Typo.subtitle1" Class="text-gray-500 font-ui">News, stories, and ideas from the community.</MudText>
+    </div>
 
+    @if (publicBlogs.Any())
+    {
+        <div class="d-flex align-center gap-2 mb-6">
+            <MudIcon Icon="@Icons.Material.Filled.AutoAwesome" Color="Color.Warning" />
+            <MudText Typo="Typo.h6" Class="font-bold font-ui">Featured Stories</MudText>
+        </div>
 
-<MudContainer Class="py-10" Style=" min-height:100vh;">
+        <MudGrid Class="mb-12" Spacing="4">
+            @foreach (var blog in publicBlogs.Take(3))
+            {
+                <MudItem xs="12" sm="6" md="4">
+                    <MudPaper Elevation="0" Class="h-100 rounded-xl overflow-hidden border-1 border-solid mud-border-lines-default hover:shadow-lg transition-all cursor-pointer group"
+                              @onclick="@(async () => await JS.InvokeVoidAsync("eval", $"window.location.href = '/blog/{blog.Id}';"))">
 
-    <!-- FEATURED POSTS -->
-
-    <MudText Typo="Typo.h5" Class="mb-6 font-bold">Featured Posts</MudText>
-    <MudGrid Class="mb-12" Spacing="3">
-
-        @foreach (var blog in publicBlogs.Take(3))
-
-        {
-
-            <MudItem xs="12" sm="6" md="4">
-
-                <MudCard Elevation="25" Class="rounded-lg blog-card" @onclick="@(() => Navigation.NavigateTo($"/blog/{blog.Id}"))">
-                    <MudCardMedia Image="@blog.ImageUrl" Height="200" />
-                    <MudCardContent>
-                        <MudChip T="string" Color="Color.Primary" Variant="Variant.Text" Class="font-semibold mb-2">Featured</MudChip>
-                        <MudText Typo="Typo.h6" Class="font-bold">@blog.Title</MudText>
-                        <MudText Typo="Typo.body2" Class="mt-2">@blog.Subtitle</MudText>
-                    </MudCardContent>
-                    <MudCardActions Class="px-4 pb-3">
-                        <MudStack Row="true" AlignItems="AlignItems.Center">
-                            <MudAvatar Size="Size.Small" >@blog.AuthorName[0]</MudAvatar>
-                            <MudText Typo="Typo.body2">@blog.AuthorName</MudText>
-                        </MudStack>
-                    </MudCardActions>
-                </MudCard>
-
-            </MudItem>
-
-        }
-
-    </MudGrid>
-
-    <!-- RECENT BLOG POSTS -->
-
-    <MudText Typo="Typo.h5" Class="mb-6 font-bold">Recent Blog Posts</MudText>
-    <MudGrid Spacing="3">
-
-        @foreach (var blog in publicBlogs)
-
-        {
-
-            <MudItem xs="12" sm="6" md="4">
-
-                <MudCard Elevation="25" Class="rounded-lg blog-card" @onclick="@(() => Navigation.NavigateTo($"/blog/{blog.Id}"))">
-                    <MudCardMedia Image="@blog.ImageUrl" Height="200" />
-                    <MudCardContent>
-                        <MudText Typo="Typo.h6" Class="font-bold">@blog.Title</MudText>
-                        <MudText Typo="Typo.body2" Class="mt-2 line-clamp-3">
-                            @blog.Subtitle
-                        </MudText>
-                        <MudText Typo="Typo.caption" >• @blog.CreatedAt.ToString("MMM dd, yyyy")
-                        </MudText>
-                    </MudCardContent>
-                    <MudCardActions Class="d-flex justify-space-between px-4 pb-3">
-                        <MudStack Row="true" AlignItems="AlignItems.Center">
-                            <MudAvatar Size="Size.Small" Color="Color.Secondary">@blog.AuthorName[0]</MudAvatar>
-                            <MudText Typo="Typo.body2">@blog.AuthorName</MudText>
-                        </MudStack>
-                        <MudStack Row="true" Spacing="3">
-                            <div style="display:flex; gap:14px; align-items:center;">
-
-                                <div style="display:flex; gap:4px; align-items:center;">
-
-                                    <MudIcon Icon="@Icons.Material.Filled.ThumbUp" />
-
-                                    <MudText Typo="Typo.body2">@blog.Likes?.Count</MudText>
-
+                        <div class="overflow-hidden position-relative" style="height: 200px;">
+                            <MudImage Src="@blog.ImageUrl" ObjectFit="ObjectFit.Cover" Class="w-100 h-100 transition-transform duration-500 group-hover:scale-105" />
+                            <div class="absolute top-2 left-2">
+                                <div class="absolute top-2 left-2">
+                                    <span style="background-color: white; color: black; padding: 4px 12px; border-radius: 16px; font-size: 0.75rem; font-weight: bold;">
+                                        Featured
+                                    </span>
                                 </div>
-
-
-
-                                <div style="display:flex; gap:4px; align-items:center;">
-
-                                    <MudIcon Icon="@Icons.Material.Filled.Comment" />
-
-                                    <MudText Typo="Typo.body2">@blog.Comments?.Count</MudText>
-
-                                </div>
-
                             </div>
-                        </MudStack>
-                    </MudCardActions>
-                </MudCard>
+                        </div>
 
-            </MudItem>
+                        <div class="pa-5 d-flex flex-column h-100">
+                            <MudText Typo="Typo.h6" Class="font-bold mb-2 leading-tight group-hover:text-primary transition-colors font-serif">
+                                @blog.Title
+                            </MudText>
 
+                            <MudText Typo="Typo.body2" Class="text-gray-500 mb-4 line-clamp-2 font-ui" Style="flex-grow: 1;">
+                                @blog.Subtitle
+                            </MudText>
+
+                            <div class="d-flex align-center justify-space-between mt-auto font-ui">
+                                <div class="d-flex align-center gap-2">
+                                    <MudAvatar Size="Size.Small" Class="text-xs">
+                                        @(!string.IsNullOrEmpty(blog.AuthorName) ? blog.AuthorName[0].ToString().ToUpper() : "?")
+                                    </MudAvatar>
+                                    <div>
+                                        <MudText Typo="Typo.caption" Class="font-bold block text-gray-800" Style="line-height: 1;">@blog.AuthorName</MudText>
+                                        <MudText Typo="Typo.caption" Class="text-gray-400" Style="font-size: 0.7rem;">
+                                            @(blog.CreatedAt?.ToString("MMM dd") ?? "")
+                                        </MudText>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </MudPaper>
+                </MudItem>
+            }
+        </MudGrid>
+    }
+
+    <div class="d-flex align-center gap-2 mb-6 border-t-1 border-gray-200 pt-8">
+        <MudIcon Icon="@Icons.Material.Filled.AccessTime" Color="Color.Primary" />
+        <MudText Typo="Typo.h6" Class="font-bold font-ui">Latest Stories</MudText>
+    </div>
+
+    <div class="d-flex flex-column gap-4">
+        @foreach (var blog in publicBlogs)
+        {
+            <MudPaper Elevation="0"
+                      Class="d-flex flex-column flex-sm-row rounded-xl overflow-hidden border-1 border-solid mud-border-lines-default hover:shadow-md transition-all cursor-pointer group"
+                      @onclick="@(async () => await JS.InvokeVoidAsync("eval", $"window.location.href = '/blog/{blog.Id}';"))">
+
+                <div class="overflow-hidden position-relative horizontal-card-image">
+                    @if (!string.IsNullOrEmpty(blog.ImageUrl))
+                    {
+                        <MudImage Src="@blog.ImageUrl" ObjectFit="ObjectFit.Cover" Class="w-100 h-100 transition-transform duration-500 group-hover:scale-105" />
+                    }
+                    else
+                    {
+                        <div class="w-100 h-100 d-flex justify-center align-center bg-gray-100">
+                            <MudIcon Icon="@Icons.Material.Filled.Image" Size="Size.Large" Class="text-gray-300" />
+                        </div>
+                    }
+                </div>
+
+                <div class="pa-4 pa-sm-6 d-flex flex-column flex-grow-1" style="min-width: 0;">
+
+                    <div class="d-flex justify-space-between align-center mb-2 font-ui">
+                        <MudText Typo="Typo.caption" Class="text-gray-400 font-bold uppercase tracking-wide">
+                            @(blog.CreatedAt?.ToString("MMMM dd, yyyy") ?? "UNKNOWN")
+                        </MudText>
+                    </div>
+
+                    <MudText Typo="Typo.h5" Class="font-bold mb-2 leading-tight group-hover:text-primary transition-colors font-serif">
+                        @blog.Title
+                    </MudText>
+
+                    <MudText Typo="Typo.body2" Class="text-gray-500 mb-4 line-clamp-2 font-ui" Style="flex-grow: 1;">
+                        @blog.Subtitle
+                    </MudText>
+
+                    <MudDivider Class="my-3" />
+
+                    <div class="d-flex align-center justify-space-between mt-auto font-ui">
+                        <div class="d-flex align-center gap-2">
+                            <MudAvatar Size="Size.Small" Color="Color.Secondary" Variant="Variant.Filled" Style="font-size: 10px; width: 24px; height: 24px;">
+                                @(!string.IsNullOrEmpty(blog.AuthorName) ? blog.AuthorName[0].ToString().ToUpper() : "?")
+                            </MudAvatar>
+                            <MudText Typo="Typo.caption" Class="font-bold text-gray-700">@blog.AuthorName</MudText>
+                        </div>
+
+                        <div class="d-flex align-center gap-4">
+                            <div class="d-flex align-center gap-1 text-gray-400">
+                                <MudIcon Icon="@Icons.Material.Outlined.ThumbUp" Size="Size.Small" style="font-size: 16px;" />
+                                <MudText Typo="Typo.caption">@blog.Likes?.Count</MudText>
+                            </div>
+                            <div class="d-flex align-center gap-1 text-gray-400">
+                                <MudIcon Icon="@Icons.Material.Outlined.ChatBubbleOutline" Size="Size.Small" style="font-size: 16px;" />
+                                <MudText Typo="Typo.caption">@blog.Comments?.Count</MudText>
+                            </div>
+                            <MudIcon Icon="@Icons.Material.Outlined.BookmarkAdd" Size="Size.Small" Class="text-gray-300 hover:text-primary" />
+                        </div>
+                    </div>
+                </div>
+            </MudPaper>
         }
+    </div>
 
-    </MudGrid>
 </MudContainer>
 
-
-
 @code {
-
     [Inject]
     public IJSRuntime JS { get; set; } = default!;
 
     private List<BlogEntry> allBlogs;
-
     private List<string> followingEmails = new();
-
-
     private List<BlogEntry> publicBlogs = new();
-    private string imageSrc;
 
-    private bool isLoading = true;
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     var jwt = await JS.InvokeAsync<string>("localStorage.getItem", "jwt");
 
-    private string? hoveredBlogId = null; // For hover shadow effect
-    
+    //     if (string.IsNullOrWhiteSpace(jwt))
+    //     {
+    //         Navigation.NavigateTo("/", forceLoad: true);
+    //         return;
+    //     }
 
+    //     http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+
+    //     var claims = DecodeJwtPayload(jwt);
+
+    //     if (claims.TryGetValue("email", out var emailObj))
+    //     {
+    //         Data.Email = emailObj?.ToString();
+    //         Data.Name = await http.GetStringAsync($"https:localhost:7193/api/Auth/getuser?email={Data.Email}");
+
+    //         ✅ CHANGED: Use manual HTTP call instead of GetStringAsync
+    //         try
+    //         {
+    //             var nameResponse = await http.GetAsync($"/api/Auth/getuser?email={Data.Email}");
+    //             if (nameResponse.IsSuccessStatusCode)
+    //             {
+    //                 Data.Name = await nameResponse.Content.ReadAsStringAsync();
+    //                 Remove quotes if the response is a JSON string
+    //                 Data.Name = Data.Name?.Trim('"');
+    //             }
+    //         }
+    //         catch (Exception ex)
+    //         {
+    //             Console.WriteLine($"Error getting username: {ex.Message}");
+    //         }
+    //     }
+
+    //     if (string.IsNullOrWhiteSpace(Data.Name))
+    //     {
+    //         if (claims.TryGetValue("user_metadata", out var userMetaObj) && userMetaObj is JsonElement userMetaElement)
+    //         {
+    //             if (userMetaElement.TryGetProperty("name", out var nameElement))
+    //             {
+    //                 Data.Name = nameElement.GetString();
+    //             }
+    //         }
+    //     }
+
+    //     try
+    //     {
+    //         allBlogs = await http.GetFromJsonAsync<List<BlogEntry>>($"https:localhost:7193/api/Auth/blogs") ?? new List<BlogEntry>();
+
+    //         allBlogs = allBlogs
+    //           .Where(b => b.Published == true)
+    //           .OrderByDescending(b => b.CreatedAt)
+    //           .ToList();
+
+    //         var blogsResponse = await http.GetAsync("/api/Auth/blogs");
+    //         if (blogsResponse.IsSuccessStatusCode)
+    //         {
+    //             var blogsJson = await blogsResponse.Content.ReadAsStringAsync();
+    //             allBlogs = JsonSerializer.Deserialize<List<BlogEntry>>(blogsJson, new JsonSerializerOptions
+    //             {
+    //                 PropertyNameCaseInsensitive = true
+    //             }) ?? new List<BlogEntry>();
+
+    //             allBlogs = allBlogs
+    //                 .Where(b => b.Published == true)
+    //                 .OrderByDescending(b => b.CreatedAt)
+    //                 .ToList();
+    //         }
+    //         else
+    //         {
+    //             allBlogs = new List<BlogEntry>();
+    //         }
+
+    //         var followingResponse = await http.GetAsync($"https:localhost:7193/api/Auth/following");
+    //         if (followingResponse.IsSuccessStatusCode)
+    //         {
+    //             followingEmails = await followingResponse.Content.ReadFromJsonAsync<List<string>>() ?? new List<string>();
+    //         }
+
+    //         publicBlogs = allBlogs.Where(b =>
+    //             b.Visibility == "Public" ||
+    //             (b.Visibility == "Private" && (followingEmails.Contains(b.AuthorEmail) || b.AuthorEmail == Data.Email))
+    //         ).ToList();
+
+    //         ✅ CHANGED: Use manual HTTP call for following list
+    //         var followingResponse = await http.GetAsync("/api/Auth/following");
+    //         if (followingResponse.IsSuccessStatusCode)
+    //         {
+    //             var followingJson = await followingResponse.Content.ReadAsStringAsync();
+    //             followingEmails = JsonSerializer.Deserialize<List<string>>(followingJson, new JsonSerializerOptions
+    //             {
+    //                 PropertyNameCaseInsensitive = true
+    //             }) ?? new List<string>();
+    //         }
+    //         else
+    //         {
+    //             followingEmails = new List<string>();
+    //         }
+
+    //         publicBlogs = allBlogs.Where(b =>
+    //             b.Visibility == "Public" ||
+    //             (b.Visibility == "Private" && (followingEmails.Contains(b.AuthorEmail) || b.AuthorEmail == Data.Email))
+    //         ).ToList();
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         Console.WriteLine($"Error fetching blogs: {ex.Message}");
+    //     }
+    // }
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     var jwt = await JS.InvokeAsync<string>("localStorage.getItem", "jwt");
+
+    //     if (string.IsNullOrWhiteSpace(jwt))
+    //     {
+    //         Navigation.NavigateTo("/", forceLoad: true);
+    //         return;
+    //     }
+
+    //     http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+
+    //     var claims = DecodeJwtPayload(jwt);
+
+    //     if (claims.TryGetValue("email", out var emailObj))
+    //     {
+    //         Data.Email = emailObj?.ToString();
+
+    //         try
+    //         {
+    //             var nameResponse = await http.GetAsync($"/api/Auth/getuser?email={Data.Email}");
+    //             if (nameResponse.IsSuccessStatusCode)
+    //             {
+    //                 Data.Name = await nameResponse.Content.ReadAsStringAsync();
+    //                 Data.Name = Data.Name?.Trim('"');
+    //             }
+    //         }
+    //         catch (Exception ex)
+    //         {
+    //             Console.WriteLine($"Error getting username: {ex.Message}");
+    //         }
+    //     }
+
+    //     if (string.IsNullOrWhiteSpace(Data.Name))
+    //     {
+    //         if (claims.TryGetValue("user_metadata", out var userMetaObj) && userMetaObj is JsonElement userMetaElement)
+    //         {
+    //             if (userMetaElement.TryGetProperty("name", out var nameElement))
+    //             {
+    //                 Data.Name = nameElement.GetString();
+    //             }
+    //         }
+    //     }
+
+    //     try
+    //     {
+    //         Use source generation for deserialization
+    //         var blogsResponse = await http.GetAsync("/api/Auth/blogs");
+    //         if (blogsResponse.IsSuccessStatusCode)
+    //         {
+    //             var blogsJson = await blogsResponse.Content.ReadAsStringAsync();
+
+    //             var options = new JsonSerializerOptions
+    //                 {
+    //                     PropertyNameCaseInsensitive = true,
+    //                 };
+
+    //             allBlogs = JsonSerializer.Deserialize<List<BlogEntry>>(blogsJson, options)
+    //                 ?? new List<BlogEntry>();
+
+    //             allBlogs = allBlogs
+    //                 .Where(b => b.Published == true)
+    //                 .OrderByDescending(b => b.CreatedAt)
+    //                 .ToList();
+    //         }
+    //         else
+    //         {
+    //             allBlogs = new List<BlogEntry>();
+    //         }
+
+    //         Use source generation for following list
+    //         var followingResponse = await http.GetAsync("/api/Auth/following");
+    //         if (followingResponse.IsSuccessStatusCode)
+    //         {
+    //             var followingJson = await followingResponse.Content.ReadAsStringAsync();
+
+    //             var options = new JsonSerializerOptions
+    //                 {
+    //                     PropertyNameCaseInsensitive = true
+    //                 };
+
+    //             followingEmails = JsonSerializer.Deserialize<List<string>>(followingJson, options)
+    //                 ?? new List<string>();
+    //         }
+    //         else
+    //         {
+    //             followingEmails = new List<string>();
+    //         }
+
+    //         publicBlogs = allBlogs.Where(b =>
+    //             b.Visibility == "Public" ||
+    //             (b.Visibility == "Private" && (followingEmails.Contains(b.AuthorEmail) || b.AuthorEmail == Data.Email))
+    //         ).ToList();
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         Console.WriteLine($"Error fetching blogs: {ex.Message}");
+    //         Console.WriteLine($"Stack trace: {ex.StackTrace}");
+    //         allBlogs = new List<BlogEntry>();
+    //         publicBlogs = new List<BlogEntry>();
+    //     }
+    // }
 
     protected override async Task OnInitializedAsync()
     {
-
         var jwt = await JS.InvokeAsync<string>("localStorage.getItem", "jwt");
 
         if (string.IsNullOrWhiteSpace(jwt))
         {
-            Navigation.NavigateTo("/", forceLoad: true);
+            await JS.InvokeVoidAsync("eval", "window.location.href = '/';");
             return;
         }
 
@@ -142,14 +379,25 @@
 
         var claims = DecodeJwtPayload(jwt);
 
-        // Extract email and name from claims
         if (claims.TryGetValue("email", out var emailObj))
         {
             Data.Email = emailObj?.ToString();
-            Data.Name = await http.GetStringAsync($"https://localhost:7193/api/Auth/getuser?email={Data.Email}");
+
+            try
+            {
+                var nameResponse = await http.GetAsync($"/api/Auth/getuser?email={Data.Email}");
+                if (nameResponse.IsSuccessStatusCode)
+                {
+                    Data.Name = await nameResponse.Content.ReadAsStringAsync();
+                    Data.Name = Data.Name?.Trim('"');
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting username: {ex.Message}");
+            }
         }
 
-        
         if (string.IsNullOrWhiteSpace(Data.Name))
         {
             if (claims.TryGetValue("user_metadata", out var userMetaObj) && userMetaObj is JsonElement userMetaElement)
@@ -161,58 +409,49 @@
             }
         }
 
-
-        allBlogs = await http.GetFromJsonAsync<List<BlogEntry>>($"https://localhost:7193/api/Auth/blogs");
-
-        allBlogs = allBlogs
-       .OrderByDescending(b => b.CreatedAt)
-       .ToList();
-
-        var followingResponse = await http.GetAsync($"https://localhost:7193/api/Auth/following");
-        if (followingResponse.IsSuccessStatusCode)
+        try
         {
-            followingEmails = await followingResponse.Content.ReadFromJsonAsync<List<string>>() ?? new List<string>();
+            //✅ Use Newtonsoft.Json
+            var blogsResponse = await http.GetAsync("/api/Auth/blogs");
+            if (blogsResponse.IsSuccessStatusCode)
+            {
+                var blogsJson = await blogsResponse.Content.ReadAsStringAsync();
+                allBlogs = JsonConvert.DeserializeObject<List<BlogEntry>>(blogsJson) ?? new List<BlogEntry>();
+
+                allBlogs = allBlogs
+                    .Where(b => b.Published == true)
+                    .OrderByDescending(b => b.CreatedAt)
+                    .ToList();
+            }
+            else
+            {
+                allBlogs = new List<BlogEntry>();
+            }
+
+            //✅ Use Newtonsoft.Json for following list
+            var followingResponse = await http.GetAsync("/api/Auth/following");
+            if (followingResponse.IsSuccessStatusCode)
+            {
+                var followingJson = await followingResponse.Content.ReadAsStringAsync();
+                followingEmails = JsonConvert.DeserializeObject<List<string>>(followingJson) ?? new List<string>();
+            }
+            else
+            {
+                followingEmails = new List<string>();
+            }
+
+            publicBlogs = allBlogs.Where(b =>
+                b.Visibility == "Public" ||
+                (b.Visibility == "Private" && (followingEmails.Contains(b.AuthorEmail) || b.AuthorEmail == Data.Email))
+            ).ToList();
         }
-
-        publicBlogs = allBlogs.Where(b =>
-    b.Visibility == "Public" ||
-    (b.Visibility == "Private" && (followingEmails.Contains(b.AuthorEmail) || b.AuthorEmail == Data.Email))
-).ToList();
-
-        // try
-        // {
-        //     var response = await http.GetAsync("https:localhost:7193/api/Auth/validate");
-
-        //     if (!response.IsSuccessStatusCode)
-        //     {
-
-        //         await JS.InvokeVoidAsync("localStorage.removeItem", "jwt");
-        //         Navigation.NavigateTo("/", forceLoad: true);
-        //         return;
-        //     }
-
-        //     var json = await response.Content.ReadAsStringAsync();
-        //     var result = JsonSerializer.Deserialize<UserData>(json, new JsonSerializerOptions
-        //     {
-        //         PropertyNameCaseInsensitive = true
-        //     });
-
-        //     Data.Email = result?.Email;
-        //     Data.Name = result?.Name;
-        //     isLoading = false;
-
-        // }
-        // catch
-        // {
-
-        //     await JS.InvokeVoidAsync("localStorage.removeItem", "jwt");
-        //     Navigation.NavigateTo("/", forceLoad: true);
-        // }
-    }
-
-    private string GetImageSrc(byte[] imageBytes)
-    {
-        return $"data:image/png;base64,{Convert.ToBase64String(imageBytes)}";
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching blogs: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            allBlogs = new List<BlogEntry>();
+            publicBlogs = new List<BlogEntry>();
+        }
     }
 
     private Dictionary<string, object> DecodeJwtPayload(string jwt)
@@ -222,7 +461,6 @@
             throw new ArgumentException("Invalid JWT format");
 
         var payload = parts[1];
-        // Pad if necessary for Base64 decoding
         int padding = 4 - (payload.Length % 4);
         if (padding < 4)
             payload += new string('=', padding);
@@ -230,29 +468,51 @@
         var bytes = Convert.FromBase64String(payload);
         var json = System.Text.Encoding.UTF8.GetString(bytes);
 
-        return JsonSerializer.Deserialize<Dictionary<string, object>>(json)
-               ?? new Dictionary<string, object>();
+        return JsonConvert.DeserializeObject<Dictionary<string, object>>(json)
+                ?? new Dictionary<string, object>();
     }
-
-
 }
 
 <style>
-    .blog-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        cursor: pointer;
+    /* Import Google Fonts */
+    @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Merriweather:wght@400;700;900&display=swap');
+
+    /* Font Classes */
+    .font-serif {
+        font-family: 'Merriweather', serif !important;
     }
 
-        .blog-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-        }
+    .font-ui, .font-header {
+        font-family: 'Inter', sans-serif !important;
+    }
 
-    .line-clamp-3 {
-        overflow: hidden;
-        text-overflow: ellipsis;
+    /* Hover scale effect */
+    .group:hover .group-hover\:scale-105 {
+        transform: scale(1.05);
+    }
+
+    .group:hover .group-hover\:text-primary {
+        color: var(--mud-palette-primary) !important;
+    }
+
+    .line-clamp-2 {
         display: -webkit-box;
-        -webkit-line-clamp: 3;
+        -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* Horizontal Card Image Sizing */
+    .horizontal-card-image {
+        width: 100%;
+        height: 200px;
+    }
+
+    @@media (min-width: 600px) {
+        .horizontal-card-image {
+            width: 280px !important;
+            height: auto !important;
+            min-height: 200px;
+        }
     }
 </style>

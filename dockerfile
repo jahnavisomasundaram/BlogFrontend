@@ -1,33 +1,35 @@
-# =========================
-# Build Stage
-# =========================
+# --------------------
+# Build stage
+# --------------------
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
+WORKDIR /app
 
-# Copy everything and restore dependencies
+# Copy solution and project files
+COPY BlogApp.sln ./
+COPY BlogApp/BlogApp.csproj ./BlogApp/
+
+# Restore dependencies
+RUN dotnet restore
+
+# Copy everything else
 COPY . .
-RUN dotnet restore "BlogApp/BlogApp.csproj"
 
-# Publish the Blazor WebAssembly app
-RUN dotnet publish "BlogApp/BlogApp.csproj" -c Release -o /app/build
+# Publish the app
+RUN dotnet publish BlogApp/BlogApp.csproj -c Release -o /app/build
 
-# =========================
-# Runtime Stage (NGINX)
-# =========================
+# --------------------
+# Runtime stage (NGINX)
+# --------------------
 FROM nginx:alpine AS runtime
 WORKDIR /usr/share/nginx/html
 
-# Remove default NGINX website
+# Remove default nginx files
 RUN rm -rf ./*
 
-# Copy published Blazor output
-COPY --from=build /app/build/wwwroot .
+# Copy published wwwroot files
+COPY --from=build /app/build/wwwroot ./
 
-# Optional: SPA fallback routing (redirect 404s to index.html)
-#COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose port 80
 EXPOSE 80
-
-# Start NGINX
-CMD ["nginx", "-g", "daemon off;"]

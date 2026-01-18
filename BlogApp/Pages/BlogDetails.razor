@@ -3,6 +3,10 @@
 @using System.Net.Http.Headers
 @using System.Text.Json
 @using System.Text;
+@using Newtonsoft.Json
+
+@using SystemJsonSerializer = System.Text.Json.JsonSerializer
+@using SystemJsonElement = System.Text.Json.JsonElement
 
 @inject NavigationManager Navigation
 @inject UserData Data
@@ -51,7 +55,8 @@
                             </MudLink>
                         }
                         <MudText Typo="Typo.caption" Color="Color.Secondary">
-                            @blog.CreatedAt.ToString("MMMM dd, yyyy")
+                            @blog.CreatedAt?.ToString("MMMM dd, yyyy") ?? "Date not available"
+
                         </MudText>
                     </MudItem>
                     <MudItem>
@@ -261,13 +266,28 @@
             var query = newComment[(atIndex + 1)..];
             if (!string.IsNullOrWhiteSpace(query))
             {
-                // 🔥 Call backend to fetch users
-                var users = await http.GetFromJsonAsync<List<UserSearchResultDto>>(
-                    $"https://localhost:7193/api/Auth/searchusers?query={query}"
-                );
-
-                mentionSuggestions = users ?? new List<UserSearchResultDto>();
-                showMentionDropdown = mentionSuggestions.Any();
+                try
+                {
+                    // ✅ Use manual HTTP call instead of GetFromJsonAsync
+                    var response = await http.GetAsync($"api/Auth/searchusers?query={Uri.EscapeDataString(query)}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var json = await response.Content.ReadAsStringAsync();
+                        mentionSuggestions = JsonConvert.DeserializeObject<List<UserSearchResultDto>>(json) ?? new List<UserSearchResultDto>();
+                        showMentionDropdown = mentionSuggestions.Any();
+                    }
+                    else
+                    {
+                        mentionSuggestions = new List<UserSearchResultDto>();
+                        showMentionDropdown = false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error fetching user suggestions: {ex.Message}");
+                    mentionSuggestions = new List<UserSearchResultDto>();
+                    showMentionDropdown = false;
+                }
             }
             else
             {
@@ -316,7 +336,86 @@
 
     protected override async Task OnInitializedAsync()
     {
-        blog = await http.GetFromJsonAsync<BlogEntry>($"https://localhost:7193/api/Auth/blog/{id}");
+        // ✅ Check authentication first
+        var jwt = await JS.InvokeAsync<string>("localStorage.getItem", "jwt");
+
+        if (string.IsNullOrWhiteSpace(jwt))
+        {
+            await JS.InvokeVoidAsync("eval", "window.location.href = '/';");
+            return;
+        }
+
+        http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+
+        var claims = DecodeJwtPayload(jwt);
+
+        if (claims.TryGetValue("email", out var emailObj))
+        {
+            Data.Email = emailObj?.ToString();
+
+            try
+            {
+                var nameResponse = await http.GetAsync($"/api/Auth/getuser?email={Data.Email}");
+                if (nameResponse.IsSuccessStatusCode)
+                {
+                    Data.Name = await nameResponse.Content.ReadAsStringAsync();
+                    Data.Name = Data.Name?.Trim('"');
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting username: {ex.Message}");
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(Data.Name))
+        {
+            if (claims.TryGetValue("user_metadata", out var userMetaObj) && userMetaObj is JsonElement userMetaElement)
+            {
+                if (userMetaElement.TryGetProperty("name", out var nameElement))
+                {
+                    Data.Name = nameElement.GetString();
+                }
+            }
+        }
+
+        // ✅ Load blog using Newtonsoft.Json
+        try
+        {
+            var response = await http.GetAsync($"/api/Auth/blog/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                var blogJson = await response.Content.ReadAsStringAsync();
+                blog = JsonConvert.DeserializeObject<BlogEntry>(blogJson);
+                Console.WriteLine($"✅ Blog loaded: {blog?.Title}");
+            }
+            else
+            {
+                Console.WriteLine($"❌ Failed to load blog. Status: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading blog: {ex.Message}");
+        }
+    }
+
+    private Dictionary<string, object> DecodeJwtPayload(string jwt)
+    {
+        var parts = jwt.Split('.');
+        if (parts.Length != 3)
+            throw new ArgumentException("Invalid JWT format");
+
+        var payload = parts[1];
+        int padding = 4 - (payload.Length % 4);
+        if (padding < 4)
+            payload += new string('=', padding);
+
+        var bytes = Convert.FromBase64String(payload);
+        var json = System.Text.Encoding.UTF8.GetString(bytes);
+
+        return JsonConvert.DeserializeObject<Dictionary<string, object>>(json)
+                ?? new Dictionary<string, object>();
     }
 
     private string GetLikeIcon()
@@ -336,7 +435,7 @@
 
     private async Task LikeBlog(string blogId)
     {
-        var response = await http.PostAsync($"https://localhost:7193/api/Auth/like/{blogId}", null);
+        var response = await http.PostAsync($"/api/Auth/like/{blogId}", null);
 
         if (response.IsSuccessStatusCode && !string.IsNullOrWhiteSpace(Data.Email))
         {
@@ -356,7 +455,7 @@
 
     private async Task DislikeBlog(string blogId)
     {
-        var response = await http.PostAsync($"https://localhost:7193/api/Auth/dislike/{blogId}", null);
+        var response = await http.PostAsync($"/api/Auth/dislike/{blogId}", null);
 
         if (response.IsSuccessStatusCode && !string.IsNullOrWhiteSpace(Data.Email))
         {
@@ -379,9 +478,10 @@
 
         isPosting = true;
 
-        var content = new StringContent(JsonSerializer.Serialize(newComment), Encoding.UTF8, "application/json");
+        var jsonString = SystemJsonSerializer.Serialize(newComment);
+        var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
 
-        var response = await http.PostAsync($"https://localhost:7193/api/Auth/comment/{blog.Id}", content);
+        var response = await http.PostAsync($"/api/Auth/comment/{blog.Id}", content);
 
         if (response.IsSuccessStatusCode && !string.IsNullOrWhiteSpace(Data.Email))
         {
@@ -396,7 +496,7 @@
 
             foreach (var email in mentionedEmails)
             {
-                var blogLink = $"https://localhost:7157/blog/{blog.Id}";
+                var blogLink = $"/blog/{blog.Id}";
 
                 await JS.InvokeVoidAsync(
                     "sendCommentNotification",

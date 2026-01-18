@@ -4,207 +4,272 @@
 @using MudBlazor
 @using System.Net.Http.Headers
 @using System.Text.Json
+@using Newtonsoft.Json
+
 @inject UserData Data
 @inject NavigationManager Navigation
 @inject HttpClient http
-
-<MudContainer MaxWidth="MaxWidth.Medium" Style="margin-top:30px" >
-    <MudPaper Elevation="2" Class="container-1 p-6 rounded-2xl shadow-lg flex flex-wrap items-center">
-       
-        <MudGrid Gutter="true">
-            <MudItem md="2">
-                <MudContainer>
-                    <ActivatorContent>
-                        <MudAvatar Class="profile-avatar" Style="width:130px;height:130px">
-                                                @(!string.IsNullOrEmpty(Data.Name) ? Data.Name[0].ToString().ToUpper() : "?")
-                        </MudAvatar>
-                    </ActivatorContent>
-                </MudContainer>
-            </MudItem>
+@inject IJSRuntime JS
+@inject IDialogService DialogService
 
 
-            <MudItem md="5">
-                <MudGrid Gutter="true">
-                    <MudItem md="12">
-                        <MudContainer>
-                            <MudText Typo="Typo.h5" Class="font-bold">@Data.Name </MudText>
-                            <MudText Typo="Typo.subtitle2" Class="text-gray-600 mt-2">
-                                Tech Blogger & UI Enthusiast from India 🌏
-                            </MudText>
-                        </MudContainer>
-                    </MudItem>
-                    <MudItem md="4" Class="mb-2">
-                        <MudContainer>
-                            @* <MudButton Variant="Variant.Filled" Color="Color.Dark" Style="margin-left:30px;border-radius:16px;">Follow</MudButton> *@
-                        </MudContainer>
-                    </MudItem>
-                    <MudItem md="8">
-                        <MudContainer Class="mb-2">
-                            <MudButton Variant="Variant.Filled" Color="Color.Dark" Style="border-radius:16px;">Edit Profile</MudButton>
-                        </MudContainer>
-                    </MudItem>
-                </MudGrid>
-            </MudItem>
+<MudContainer MaxWidth="MaxWidth.Medium" Class="my-8">
 
+    <MudPaper Elevation="0" Class="rounded-xl overflow-hidden mb-8"
+              Style="background: var(--mud-palette-surface); border: 1px solid var(--mud-palette-lines-default);">
 
-            <MudItem md="5">
-                <MudGrid Gutter="true" Class="followers-grid">
-                    <MudItem xs="12" sm="4">
-                        <MudContainer>
-                            <MudText Typo="Typo.subtitle2" Class="text-gray-500">Followers</MudText>
-                            <MudText Typo="Typo.h5" Class="font-bold">@followerCount</MudText>
-                        </MudContainer>
-                    </MudItem>
-                    <MudItem xs="12" sm="4">
-                        <MudContainer>
-                            <MudText Typo="Typo.subtitle2" Class="text-gray-500">Following</MudText>
-                            <MudText Typo="Typo.h5" Class="font-bold">@followingCount</MudText>
-                        </MudContainer>
-                    </MudItem>
-                    <MudItem xs="12" sm="4">
-                        <MudContainer>
-                            <MudText Typo="Typo.subtitle2" Class="text-gray-500">Likes</MudText>
-                            <MudText Typo="Typo.h5" Class="font-bold">548</MudText>
-                        </MudContainer>
-                    </MudItem>
+        <div style="height: 160px; background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);"></div>
 
+        <div class="px-8 pb-6">
+            <div class="d-flex justify-space-between align-start relative">
 
-                </MudGrid>
+                <div style="margin-top: -65px;">
+                    <MudAvatar Style="width:130px; height:130px; border: 4px solid var(--mud-palette-surface); font-size: 3rem;" Color="Color.Primary">
+                        @(!string.IsNullOrEmpty(Data.Name) ? Data.Name[0].ToString().ToUpper() : "?")
+                    </MudAvatar>
+                </div>
 
-            </MudItem>
+                <div class="d-flex flex-column align-center mt-3" style="flex-grow: 1;">
+                    <MudText Typo="Typo.h4" Class="font-bold" Style="color: var(--mud-palette-text-primary);">@Data.Name</MudText>
+                    <MudText Typo="Typo.body1" Style="color: var(--mud-palette-text-secondary);">@Data.Email</MudText>
+                    <MudText Typo="Typo.body2" Class="mt-2 d-flex align-center gap-1" Style="color: var(--mud-palette-text-secondary);">
+                        Tech Blogger & UI Enthusiast from India 🌏
+                    </MudText>
+                </div>
 
-        </MudGrid>
+                <div class="mt-4">
+                    <MudButton Variant="Variant.Outlined" Color="Color.Primary" Class="rounded-pill px-6" StartIcon="@Icons.Material.Filled.Edit">
+                        Edit Profile
+                    </MudButton>
+                </div>
+            </div>
 
-
+            <MudGrid Class="mt-8 justify-center">
+                <MudItem xs="3" Class="text-center cursor-pointer hover-card rounded py-2 transition-all">
+                    <MudText Typo="Typo.h5" Class="font-bold" Style="color: var(--mud-palette-text-primary);">@followerCount</MudText>
+                    <MudText Typo="Typo.caption" Class="font-bold uppercase tracking-wide" Style="color: var(--mud-palette-text-secondary);">Followers</MudText>
+                </MudItem>
+                <MudItem xs="3" Class="text-center cursor-pointer hover-card rounded py-2 transition-all">
+                    <MudText Typo="Typo.h5" Class="font-bold" Style="color: var(--mud-palette-text-primary);">@followingCount</MudText>
+                    <MudText Typo="Typo.caption" Class="font-bold uppercase tracking-wide" Style="color: var(--mud-palette-text-secondary);">Following</MudText>
+                </MudItem>
+     
+            </MudGrid>
+        </div>
     </MudPaper>
 
-    <!-- Stats Grid -->
-    <!-- Tabs Section -->
-    <MudTabs Class="mt-8" Centered="true" Rounded="true">
-        <MudTabPanel Text="Your Blogs">
+    <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" PanelClass="mt-8" Color="Color.Transparent" SliderColor="Color.Primary" Centered="true">
+
+        <MudTabPanel Text="MY STORIES" Icon="@Icons.Material.Filled.Article">
             @if (myBlogs == null)
             {
-                <p>Loading blogs...</p>
+                <div class="d-flex justify-center py-10"><MudProgressCircular Indeterminate="true" Color="Color.Primary" /></div>
             }
             else if (myBlogs.Count == 0)
             {
-                <p>No blogs found.</p>
+                <MudAlert Severity="Severity.Info" Class="rounded-xl">You haven't written any stories yet.</MudAlert>
             }
             else
             {
-                @foreach (var blog in myBlogs)
-                {
-
-                    <MudContainer MaxWidth="MaxWidth.Medium" Class="my-4">
-                        <MudPaper Class="rounded-l p-4 shadow hover:shadow-lg transition duration-300" @onclick="@(() => Navigation.NavigateTo($"/blog/{blog.Id}"))">
-                            <MudGrid AlignItems="AlignItems.Center">
-
-                                <!-- Left: Avatar + Email + Title + Subtitle -->
-                                <MudItem xs="12" md="8">
-                                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                                        <ActivatorContent>
-                                            <MudAvatar Class="profile-avatar">
-                                                @(!string.IsNullOrEmpty(@blog.AuthorName) ? @blog.AuthorName[0].ToString().ToUpper() : "?")
-                                            </MudAvatar>
-                                        </ActivatorContent>
-                                        <MudText Typo="Typo.subtitle2" Class="font-bold" Style="display: flex; align-items: center; gap: 6px;">
-                                            @blog.AuthorName
-                                            @if (blog.Visibility == "Private")
-                                            {
-                                                <MudTooltip Text="Private blog">
-                                                    <MudIcon Icon="@Icons.Material.Filled.Lock" Size="Size.Small" Style="margin-left:30px" />
-                                                </MudTooltip>
-                                            }
+                <div class="px-2">
+                    @foreach (var blog in myBlogs)
+                    {
+                        <div class="d-flex gap-6 py-6" style="border-bottom: 1px solid var(--mud-palette-lines-default);">
+                            <div class="d-flex flex-column justify-between" style="flex: 1; min-width: 0;">
+                                <div>
+                                    <div class="d-flex align-center gap-2 mb-2">
+                                        <MudAvatar Size="Size.Small" Style="width:20px; height:20px; font-size: 0.7rem;">
+                                            @(!string.IsNullOrEmpty(blog.AuthorName) ? blog.AuthorName[0].ToString().ToUpper() : "?")
+                                        </MudAvatar>
+                                        <MudText Typo="Typo.caption" Class="font-bold" Style="color: var(--mud-palette-text-primary);">@blog.AuthorName</MudText>
+                                        <MudText Typo="Typo.caption" Style="color: var(--mud-palette-text-disabled);">·</MudText>
+                                        <MudText Typo="Typo.caption" Style="color: var(--mud-palette-text-secondary);">
+                                            @(blog.CreatedAt?.ToString("MMM dd, yyyy") ?? "Date unknown")
                                         </MudText>
+                                        @if (blog.Visibility == "Private")
+                                        {
+                                            <MudIcon Icon="@Icons.Material.Filled.Lock" Size="Size.Small" Class="ml-1" Style="font-size: 14px; color: var(--mud-palette-text-disabled);" />
+                                        }
                                     </div>
 
-                                <MudText Typo="Typo.h5" Class="font-bold">@blog.Title</MudText>
-                                <MudText Typo="Typo.subtitle1">@blog.Subtitle</MudText>
 
-                                <div style="display: flex; align-items: center; gap: 6px; margin-top: 8px;">
-                                    <MudIcon Icon="@Icons.Material.Filled.CalendarToday" />
-                                    <MudText Typo="Typo.body2">@blog.CreatedAt.ToString("MMM dd, yyyy")</MudText>
-                                        <MudButton Variant="Variant.Filled" Style="margin-left:30px;border-radius:16px;" OnClick="@(() => Navigation.NavigateTo($"/editblog/{blog.Id}"))">Edit</MudButton>
-                                        <MudButton Variant="Variant.Filled" Style="margin-left:30px;border-radius:16px;" OnClick="() => DeleteBlog(blog.Id)">Delete</MudButton>
+                                    <div class="cursor-pointer blog-link" @onclick="@(() => JS.InvokeVoidAsync("eval", $"window.location.href = '/blog/{blog.Id}';"))">
+                                        <MudText Typo="Typo.h6" Class="font-bold mb-1 leading-tight" Style="font-weight: 800; font-family: 'Merriweather', serif; color: var(--mud-palette-text-primary);">
+                                            @blog.Title
+                                        </MudText>
+                                        <MudText Typo="Typo.body2" Class="mb-2 line-clamp-2" Style="line-height: 1.5; color: var(--mud-palette-text-secondary);">
+                                            @blog.Subtitle
+                                        </MudText>
+                                    </div>
                                 </div>
-                                </MudItem>
 
-                                <!-- Right: Blog Image -->
-                                <MudItem xs="12" md="4" Class="flex justify-center md:justify-end mt-2 md:mt-0">
-                                @if (blog.ImageUrl != null && blog.ImageUrl.Length > 0)
-                                {
-                                    <MudImage ObjectFit="ObjectFit.Cover" Src="@blog.ImageUrl"
-                                            Style="width: 250px; height: 160px;" />
+                                <div class="d-flex align-center mt-3">
+                                    <MudTooltip Text="Edit">
+                                        <MudIconButton Icon="@Icons.Material.Outlined.Edit" Size="Size.Small" Color="Color.Default" Class="mr-1" OnClick="@(() => JS.InvokeVoidAsync("eval", $"window.location.href = '/editblog/{blog.Id}';"))" />
+                                    </MudTooltip>
+                                    <MudTooltip Text="Delete">
+                                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" Size="Size.Small" Color="Color.Default" Class="hover-error" OnClick="() => ConfirmDelete(blog.Id)" />
+                                    </MudTooltip>
+                                    <MudSpacer />
+                                    <MudText Typo="Typo.caption" Style="color: var(--mud-palette-text-disabled);">3 min read</MudText>
+                                </div>
+                            </div>
 
-                                }
-                                </MudItem>
-
-                            </MudGrid>
-                        </MudPaper>
-                    </MudContainer>
- 
-
-                }
+                            @if (!string.IsNullOrEmpty(blog.ImageUrl))
+                            {
+                                <div class="d-none d-sm-block flex-shrink-0" @onclick="@(() => JS.InvokeVoidAsync("eval", $"window.location.href = '/blog/{blog.Id}';"))" style="cursor: pointer;">
+                                    <MudImage Src="@blog.ImageUrl" ObjectFit="ObjectFit.Cover" Class="rounded-lg" Style="width: 160px; height: 112px;" />
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
             }
         </MudTabPanel>
-        <MudTabPanel Text="Likes">
-            <MudText Class="mt-4">Liked blogs show up here.</MudText>
+
+        <MudTabPanel Text="LIKES" Icon="@Icons.Material.Filled.Favorite">
+            <div class="d-flex flex-column align-center justify-center py-10" style="opacity: 0.5;">
+                <MudIcon Icon="@Icons.Material.Filled.FavoriteBorder" Size="Size.Large" Color="Color.Default" />
+                <MudText Class="mt-2" Style="color: var(--mud-palette-text-secondary);">Liked stories will appear here.</MudText>
+            </div>
         </MudTabPanel>
-        
-        <MudTabPanel Text="Followers">
+
+        <MudTabPanel Text="FOLLOWERS" Icon="@Icons.Material.Filled.Group">
             @if (followerCount == 0)
             {
-                <MudText>No followers yet.</MudText>
+                <div class="d-flex flex-column align-center justify-center py-10" style="opacity: 0.5;">
+                    <MudIcon Icon="@Icons.Material.Filled.SentimentDissatisfied" Size="Size.Large" Color="Color.Default" />
+                    <MudText Class="mt-2" Style="color: var(--mud-palette-text-secondary);">No followers yet.</MudText>
+                </div>
             }
             else
             {
-                @foreach (var f in Followers)
-                {
-                    <MudPaper Class="p-3 my-2 rounded-xl" Style="display: flex; align-items: center; gap: 12px;">
-                        <MudAvatar Class="profile-avatar">
-                            @(!string.IsNullOrEmpty(f) ? f[0].ToString().ToUpper() : "?")
-                        </MudAvatar>
-                        <MudText>@f</MudText>
-                    </MudPaper>
-                }
+                <div class="mt-4 px-2" style="max-width: 600px; margin: 0 auto;">
+                    @foreach (var f in Followers)
+                    {
+                        <div class="d-flex justify-space-between align-center py-4 hover-row cursor-pointer"
+                             style="border-bottom: 1px solid var(--mud-palette-lines-default);"
+                             @onclick="@(() => JS.InvokeVoidAsync("eval", $"window.location.href = '/profile1/{f.UserName}?email={f.Email}';"))">
+
+                            <div class="d-flex align-center gap-4">
+                                <MudAvatar Color="Color.Secondary" Variant="Variant.Filled" Size="Size.Medium">
+                                    @(!string.IsNullOrEmpty(f.UserName) ? f.UserName[0].ToString().ToUpper() : "?")
+                                </MudAvatar>
+                                <div>
+                                    <MudText Typo="Typo.subtitle2" Class="font-bold" Style="color: var(--mud-palette-text-primary);">@f.UserName</MudText>
+                                    <MudText Typo="Typo.caption" Style="color: var(--mud-palette-text-secondary);">Tech Enthusiast</MudText>
+                                </div>
+                            </div>
+
+                            <div @onclick:stopPropagation="true">
+                                <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" Class="rounded-pill px-4 capitalize">
+                                    Follow
+                                </MudButton>
+                            </div>
+                        </div>
+                    }
+                </div>
             }
         </MudTabPanel>
 
-        <MudTabPanel Text="Following">
+        <MudTabPanel Text="FOLLOWING" Icon="@Icons.Material.Filled.PersonAdd">
             @if (followingCount == 0)
             {
-                <MudText>Not following anyone.</MudText>
+                <div class="d-flex flex-column align-center justify-center py-10" style="opacity: 0.5;">
+                    <MudIcon Icon="@Icons.Material.Filled.PersonSearch" Size="Size.Large" Color="Color.Default" />
+                    <MudText Class="mt-2" Style="color: var(--mud-palette-text-secondary);">Not following anyone yet.</MudText>
+                </div>
             }
             else
             {
-                @foreach (var f in Following)
-                {
-                    <MudPaper Class="p-3 my-2 rounded-xl" Style="display: flex; align-items: center; gap: 12px;">
-                        <MudAvatar Class="profile-avatar">
-                            @(!string.IsNullOrEmpty(f) ? f[0].ToString().ToUpper() : "?")
-                        </MudAvatar>
-                        <MudText>@f</MudText>
-                    </MudPaper>
+                <div class="mt-4 px-2" style="max-width: 600px; margin: 0 auto;">
+                    @foreach (var f in Following)
+                    {
+                        <div class="d-flex justify-space-between align-center py-4 hover-row cursor-pointer"
+                             style="border-bottom: 1px solid var(--mud-palette-lines-default);"
+                             @onclick="@(() => JS.InvokeVoidAsync("eval", $"window.location.href = '/profile1/{f.UserName}?email={f.Email}';"))">
 
-                }
+                            <div class="d-flex align-center gap-4">
+                                <MudAvatar Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Medium">
+                                    @(!string.IsNullOrEmpty(f.UserName) ? f.UserName[0].ToString().ToUpper() : "?")
+                                </MudAvatar>
+                                <div>
+                                    <MudText Typo="Typo.subtitle2" Class="font-bold" Style="color: var(--mud-palette-text-primary);">@f.UserName</MudText>
+                                    <MudText Typo="Typo.caption" Style="color: var(--mud-palette-text-secondary);">Writer</MudText>
+                                </div>
+                            </div>
+
+                            <div @onclick:stopPropagation="true">
+                                <MudButton Variant="Variant.Outlined" Color="Color.Secondary" Size="Size.Small" Class="rounded-pill px-4 capitalize">
+                                    Unfollow
+                                </MudButton>
+                            </div>
+                        </div>
+                    }
+                </div>
             }
         </MudTabPanel>
+
     </MudTabs>
 
+    <style>
+        /* Updated Hover Color to work in Dark Mode */
+        .hover-row:hover,
+        .hover-card:hover {
+            background-color: var(--mud-palette-table-hover) !important; /* Dynamic hover color */
+            border-radius: 8px;
+            padding-left: 8px;
+            padding-right: 8px;
+            transition: all 0.2s ease;
+        }
 
+        /* Specific override for the stats grid to not jump */
+        .hover-card:hover {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Use MudBlazor color for error hover */
+        .hover-error:hover {
+            color: var(--mud-palette-error) !important;
+            background-color: transparent !important;
+        }
+
+        .blog-link:hover .mud-typography-h6 {
+            text-decoration: underline;
+            text-decoration-thickness: 1px;
+            color: var(--mud-palette-primary) !important; /* Highlight title on hover */
+        }
+
+        .capitalize {
+            text-transform: capitalize !important;
+        }
+    </style>
 </MudContainer>
 
-@code{
 
-    [Inject]
-    public IJSRuntime JS { get; set; } = default!;
+@code {
+    // ... (Your existing C# code remains exactly the same) ...
+    public List<UserMiniDto> Followers { get; set; } = new();
+    public List<UserMiniDto> Following { get; set; } = new();
 
-    public List<string> Followers { get; set; } = new();
-    public List<string> Following { get; set; } = new();
     private List<BlogEntry> myBlogs;
-
     private int followerCount = 0;
     private int followingCount = 0;
+
+    public class UserMiniDto
+    {
+        public string UserName { get; set; }
+        public string Email { get; set; }
+    }
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -213,7 +278,7 @@
 
         if (string.IsNullOrWhiteSpace(jwt))
         {
-            Navigation.NavigateTo("/", forceLoad: true);
+            await JS.InvokeVoidAsync("eval", "window.location.href = '/';");
             return;
         }
 
@@ -221,14 +286,25 @@
 
         var claims = DecodeJwtPayload(jwt);
 
-        // Extract email and name from claims
         if (claims.TryGetValue("email", out var emailObj))
         {
             Data.Email = emailObj?.ToString();
-            Data.Name = await http.GetStringAsync($"https://localhost:7193/api/Auth/getuser?email={Data.Email}");
+
+            try
+            {
+                var nameResponse = await http.GetAsync($"/api/Auth/getuser?email={Data.Email}");
+                if (nameResponse.IsSuccessStatusCode)
+                {
+                    Data.Name = await nameResponse.Content.ReadAsStringAsync();
+                    Data.Name = Data.Name?.Trim('"');
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting username: {ex.Message}");
+            }
         }
 
-        
         if (string.IsNullOrWhiteSpace(Data.Name))
         {
             if (claims.TryGetValue("user_metadata", out var userMetaObj) && userMetaObj is JsonElement userMetaElement)
@@ -240,13 +316,26 @@
             }
         }
 
-        myBlogs = await http.GetFromJsonAsync<List<BlogEntry>>($"https://localhost:7193/api/Auth/getBlogs?email={Data.Email}");
+        try
+        {
+            var blogsResponse = await http.GetAsync($"/api/Auth/getBlogs?email={Data.Email}");
+            if (blogsResponse.IsSuccessStatusCode)
+            {
+                var blogsJson = await blogsResponse.Content.ReadAsStringAsync();
+                myBlogs = JsonConvert.DeserializeObject<List<BlogEntry>>(blogsJson) ?? new List<BlogEntry>();
 
-        myBlogs = myBlogs
-       .OrderByDescending(b => b.CreatedAt)
-       .ToList();
+                myBlogs = myBlogs
+                    .OrderByDescending(b => b.CreatedAt)
+                    .ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching blogs: {ex.Message}");
+            myBlogs = new List<BlogEntry>();
+        }
 
-        var statsResponse = await http.GetAsync($"https://localhost:7193/api/Auth/userstats?email={Data.Email}");
+        var statsResponse = await http.GetAsync($"/api/Auth/userstats?email={Data.Email}");
         if (statsResponse.IsSuccessStatusCode)
         {
             var json = await statsResponse.Content.ReadAsStringAsync();
@@ -254,12 +343,25 @@
             using var document = JsonDocument.Parse(json);
             var root = document.RootElement;
 
-            // Deserialize lists
-            Followers = root.GetProperty("followers").EnumerateArray()
-                            .Select(f => f.GetString()).ToList();
+            Followers = root.GetProperty("followers")
+    .EnumerateArray()
+    .Select(f => new UserMiniDto
+    {
+        UserName = f.GetProperty("userName").GetString(),
+        Email = f.GetProperty("email").GetString()
+    })
+    .ToList();
 
-            Following = root.GetProperty("following").EnumerateArray()
-                            .Select(f => f.GetString()).ToList();
+            Following = root.GetProperty("following")
+                .EnumerateArray()
+                .Select(f => new UserMiniDto
+                {
+                    UserName = f.GetProperty("userName").GetString(),
+                    Email = f.GetProperty("email").GetString()
+                })
+                .ToList();
+
+
 
             // Get counts
             followerCount = root.GetProperty("followerCount").GetInt32();
@@ -268,72 +370,38 @@
         }
     }
 
+
     private async Task DeleteBlog(string blogId)
-{
-    var jwt = await JS.InvokeAsync<string>("localStorage.getItem", "jwt");
-    http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-
-    try
     {
-        var response = await http.DeleteAsync($"https://localhost:7193/api/Auth/delete-blog/{blogId}");
-
-        if (response.IsSuccessStatusCode)
+        var jwt = await JS.InvokeAsync<string>("localStorage.getItem", "jwt");
+        http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+        try
         {
-            // ✅ Efficient: Remove from local list without re-fetching
-            var removed = myBlogs.RemoveAll(b => b.Id == blogId);
-            if (removed > 0)
-            {
-                Console.WriteLine("✅ Blog removed from UI");
-            }
-            else
-            {
-                Console.WriteLine("⚠️ Blog not found in UI list");
-            }
+            var response = await http.DeleteAsync($"/api/Auth/delete-blog/{blogId}");
+            if (response.IsSuccessStatusCode) { var removed = myBlogs.RemoveAll(b => b.Id == blogId); if (removed > 0) Console.WriteLine("✅ Blog removed from UI"); }
+            else Console.WriteLine("❌ Blog deletion failed");
         }
-        else
+        catch (Exception ex) { Console.WriteLine($"❌ Error deleting blog: {ex.Message}"); }
+    }
+
+    private async Task ConfirmDelete(string blogId)
+    {
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Are you sure you want to delete this blog? This action cannot be undone.");
+        if (confirmed)
         {
-            Console.WriteLine("❌ Blog deletion failed");
+            await DeleteBlog(blogId);
         }
     }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"❌ Error deleting blog: {ex.Message}");
-    }
-}
-
 
     private Dictionary<string, object> DecodeJwtPayload(string jwt)
     {
         var parts = jwt.Split('.');
-        if (parts.Length != 3)
-            throw new ArgumentException("Invalid JWT format");
-
+        if (parts.Length != 3) throw new ArgumentException("Invalid JWT format");
         var payload = parts[1];
-        // Pad if necessary for Base64 decoding
         int padding = 4 - (payload.Length % 4);
-        if (padding < 4)
-            payload += new string('=', padding);
-
+        if (padding < 4) payload += new string('=', padding);
         var bytes = Convert.FromBase64String(payload);
         var json = System.Text.Encoding.UTF8.GetString(bytes);
-
-        return JsonSerializer.Deserialize<Dictionary<string, object>>(json)
-               ?? new Dictionary<string, object>();
+        return JsonConvert.DeserializeObject<Dictionary<string, object>>(json) ?? new Dictionary<string, object>();
     }
 }
-
-
-<style>
-    .followers-grid{
-        margin-top:10px;
-        display:flex;
-        flex-direction:row;
-        justify-content:center;
-        align-items:center;
-    }
-    .container-1{
-        padding:30px;
-    }
-</style>
-
-

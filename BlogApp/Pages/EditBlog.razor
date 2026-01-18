@@ -1,86 +1,136 @@
 ﻿@page "/editblog/{Id}"
 @using System.Net.Http.Headers
 @using BlogApp.Models
+
+@using Newtonsoft.Json
+
+@using SystemJsonSerializer = System.Text.Json.JsonSerializer
+@using SystemJsonElement = System.Text.Json.JsonElement
+
 @inject HttpClient Http
 @layout GeneralLayout
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
 
+<MudContainer MaxWidth="MaxWidth.Medium" Class="flex justify-center items-center my-10">
+    <MudPaper Elevation="3" Class="p-8 rounded-xl w-full" Style="padding: 30px;">
 
-
-<MudContainer MaxWidth="MaxWidth.Medium" Class="my-6">
-    <MudPaper Elevation="10" Class="p-6" Style="background:#fffceb; border-radius:12px;padding:20px">
-
-        <MudText Typo="Typo.h4" Class="text-gray-700 mb-4">📝 Edit Your Story</MudText>
-
-        <MudTextField @bind-Value="blog.Title"
-                      Placeholder="Title"
-                      Variant="Variant.Outlined"
-                      Class="mb-3"
-                      FullWidth="true"
-                      Lines="1"
-                      Adornment="Adornment.Start"
-                      AdornmentIcon="@Icons.Material.Filled.Title" />
-
-        <MudTextField @bind-Value="blog.Subtitle"
-                      Placeholder="Subtitle"
-                      Variant="Variant.Outlined"
-                      Class="mb-3"
-                      FullWidth="true"
-                      Lines="1"
-                      Adornment="Adornment.Start"
-                      AdornmentIcon="@Icons.Material.Filled.Subject" />
-
-        <MudTextField @bind-Value="blog.Content"
-                      Placeholder="Tell your story..."
-                      Variant="Variant.Outlined"
-                      Class="mb-4"
-                      FullWidth="true"
-                      Lines="10" />
-
-        <MudDivider Class="my-4" />
-
-        <MudRadioGroup T="string" @bind-Value="blog.Visibility" Orientation="Orientation.Horizontal">
-            <MudRadio T="string" Value="@("Public")" Label="Public" />
-            <MudRadio T="string" Value="@("Private")" Label="Private" />
-        </MudRadioGroup>
-
-        @* <MudText Typo="Typo.subtitle1" Class="mb-2 text-gray-600">Upload Image</MudText> *@
-
-        @* <MudGrid>
-            <MudItem xs="12" sm="6" md="12">
-                <InputFile OnChange="UploadImage" />
-            </MudItem>
-            <MudItem xs="12" sm="6" md="12">
-                @if (!string.IsNullOrWhiteSpace(UploadedImageUrl))
-                {
-                    <img src="@UploadedImageUrl" alt="Image Preview" style="max-height: 220px; border-radius: 10px; margin-top: 10px;" />
-                }
-            </MudItem>
-        </MudGrid> *@
-
-        <InputFile OnChange="UploadImage" />
-        @if (!string.IsNullOrWhiteSpace(blog.ImageUrl))
+        @if (isLoading)
         {
-            <img src="@blog.ImageUrl" style="max-height: 220px; border-radius: 10px;" />
+            <div class="d-flex justify-center my-4">
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+            </div>
         }
-
-
-        <MudDivider Class="my-4" />
-
-        @* @if (ShowSuccessMessage && !string.IsNullOrWhiteSpace(SuccessMessage))
+        else
         {
-            <MudAlert Severity="Severity.Success" Elevation="0" Variant="Variant.Filled" Dense="true" Class="mb-2">
-                @SuccessMessage
-            </MudAlert>
-        } *@
+            <MudText Typo="Typo.h4" Class="mb-6 font-bold text-gray-800" Style="font-weight: 700;">
+                📝 Edit Your Story
+            </MudText>
 
-        <MudButton Variant="Variant.Filled"
-                   Color="Color.Success"
-                   OnClick="UpdateBlog"
-                   Style="margin-top:10px">
-            Update✨
-        </MudButton>
+            @* --- Title --- *@
+            <MudTextField @bind-Value="blog.Title"
+                          Label="Title"
+                          Placeholder="Give your blog a catchy title"
+                          Variant="Variant.Outlined"
+                          FullWidth="true"
+                          Class="mb-4" />
+
+            @* --- Subtitle --- *@
+            <MudTextField @bind-Value="blog.Subtitle"
+                          Label="Subtitle"
+                          Placeholder="Add a brief summary"
+                          Variant="Variant.Outlined"
+                          FullWidth="true"
+                          Class="mb-4" />
+
+            @* --- Content --- *@
+            <MudTextField @bind-Value="blog.Content"
+                          Label="Content"
+                          Placeholder="Tell your story..."
+                          Variant="Variant.Outlined"
+                          FullWidth="true"
+                          Lines="10"
+                          Class="mb-5" />
+
+            <MudText Typo="Typo.subtitle2" Class="mb-2 font-bold text-gray-700">Cover Image</MudText>
+
+            @* --- Image Drag & Drop Area --- *@
+            <MudPaper Outlined="true"
+                      Class="p-4 border-dashed border-2 rounded-lg flex flex-column justify-center items-center text-center mb-5 hover:bg-gray-50"
+                      Style="min-height:120px; border-color: #bdbdbd; cursor: pointer; border-style: dashed; border-width: 2px; position: relative;">
+
+                <div class="d-flex flex-column align-center justify-center w-100 h-100">
+                    <MudIcon Icon="@Icons.Material.Filled.CloudUpload" Size="Size.Large" Class="text-gray-400 mb-2" />
+                    <div class="text-gray-600">Drag and drop an image here or click to browse</div>
+                </div>
+
+                <InputFile OnChange="HandleImageSelection"
+                           style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index: 10;" />
+            </MudPaper>
+
+            @* --- Image Preview --- *@
+            @if (!string.IsNullOrWhiteSpace(PreviewImageUrl))
+            {
+                <div class="mb-5 d-flex justify-center relative">
+                    <img src="@PreviewImageUrl" alt="Image Preview" style="max-height: 250px; width: auto; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Close"
+                                   Color="Color.Error"
+                                   Size="Size.Small"
+                                   Variant="Variant.Filled"
+                                   OnClick="RemoveImage"
+                                   Style="position: absolute; top: 5px; right: 5px;" />
+                </div>
+            }
+
+            <MudDivider Class="my-6" />
+
+            @* --- Visibility --- *@
+            <MudGrid Spacing="4">
+                <MudItem xs="12" sm="6">
+                    <MudText Typo="Typo.subtitle2" Class="mb-2 font-bold text-gray-700">Visibility</MudText>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="visibility" value="Public" checked="@(blog.Visibility == "Public")" @onchange="@(() => blog.Visibility = "Public")" />
+                            <span class="radio-label">
+                                <svg class="radio-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                                </svg>
+                                Public
+                            </span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="visibility" value="Private" checked="@(blog.Visibility == "Private")" @onchange="@(() => blog.Visibility = "Private")" />
+                            <span class="radio-label">
+                                <svg class="radio-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
+                                </svg>
+                                Private
+                            </span>
+                        </label>
+                    </div>
+                </MudItem>
+            </MudGrid>
+
+            @* --- Buttons --- *@
+            <div class="d-flex justify-space-between align-center mt-8">
+                <MudButton Variant="Variant.Text" Color="Color.Secondary" Class="rounded-pill px-4" OnClick="@(() => JS.InvokeVoidAsync("eval", "window.location.href = '/profile';"))">
+                    Cancel
+                </MudButton>
+
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Success"
+                           OnClick="UpdateBlog"
+                           StartIcon="@Icons.Material.Filled.CheckCircle"
+                           Class="rounded-pill px-6 font-bold">
+                    Update Story
+                </MudButton>
+            </div>
+
+            @if (ShowSuccessMessage)
+            {
+                <MudAlert Severity="Severity.Success" Class="mt-4">@SuccessMessage</MudAlert>
+            }
+        }
 
     </MudPaper>
 </MudContainer>
@@ -91,62 +141,126 @@
     private BlogEntry blog = new();
     private bool isLoading = true;
 
+    // Image Handling Variables
+    private IBrowserFile? SelectedImageFile;
+    private string? PreviewImageUrl;
+
+    // Feedback
+    private string? SuccessMessage = null;
+    private bool ShowSuccessMessage = false;
+
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            var token = await JS.InvokeAsync<string>("localStorage.getItem", "jwt");
-            Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var jwt = await JS.InvokeAsync<string>("localStorage.getItem", "jwt");
 
-            blog = await Http.GetFromJsonAsync<BlogEntry>($"https://localhost:7193/api/Auth/blog/{Id}");
+            if (string.IsNullOrWhiteSpace(jwt))
+            {
+                await JS.InvokeVoidAsync("eval", "window.location.href = '/';");
+                return;
+            }
+
+            Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+
+            var blogResponse = await Http.GetAsync($"/api/Auth/blog/{Id}");
+            if (blogResponse.IsSuccessStatusCode)
+            {
+                var blogJson = await blogResponse.Content.ReadAsStringAsync();
+                blog = JsonConvert.DeserializeObject<BlogEntry>(blogJson) ?? new BlogEntry();
+
+                // Set the preview to the existing image URL initially
+                PreviewImageUrl = blog.ImageUrl;
+
+                Console.WriteLine($"✅ Blog loaded: {blog.Title}");
+            }
+            else
+            {
+                Console.WriteLine($"❌ Failed to load blog. Status: {blogResponse.StatusCode}");
+            }
         }
         catch (Exception ex)
         {
             Console.WriteLine("❌ Error fetching blog: " + ex.Message);
         }
-
-        isLoading = false;
+        finally
+        {
+            isLoading = false;
+        }
     }
 
-    private async Task UploadImage(InputFileChangeEventArgs e)
+    // Handles picking a file (Drag & Drop or Click)
+    private async Task HandleImageSelection(InputFileChangeEventArgs e)
     {
-        var file = e.File;
-        if (file == null) return;
+        SelectedImageFile = e.File;
+        if (SelectedImageFile == null) return;
 
-        try
-        {
-            var content = new MultipartFormDataContent();
-            var stream = file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024); // 10MB max
-            content.Add(new StreamContent(stream), "file", file.Name);
-
-            var uploadResponse = await Http.PostAsync("https://localhost:7193/api/Auth/upload", content);
-            if (uploadResponse.IsSuccessStatusCode)
-            {
-                var imageUrl = await uploadResponse.Content.ReadAsStringAsync();
-                blog.ImageUrl = imageUrl.Trim('"'); // remove quotes from JSON string
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("❌ Error uploading image: " + ex.Message);
-        }
+        // Create a local preview
+        using var stream = SelectedImageFile.OpenReadStream(5 * 1024 * 1024); // 5MB limit
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms);
+        var base64 = Convert.ToBase64String(ms.ToArray());
+        PreviewImageUrl = $"data:{SelectedImageFile.ContentType};base64,{base64}";
     }
 
+    // Handles removing the image from the preview
+    private void RemoveImage()
+    {
+        PreviewImageUrl = null;
+        SelectedImageFile = null;
+        blog.ImageUrl = null; // Mark logic to clear it on backend if needed
+    }
 
     private async Task UpdateBlog()
     {
         try
         {
-            var response = await Http.PutAsJsonAsync($"https://localhost:7193/api/Auth/edit-blog/{Id}", blog);
+            // 1. If a new file was selected, upload it first
+            if (SelectedImageFile != null)
+            {
+                using var content = new MultipartFormDataContent();
+                using var stream = SelectedImageFile.OpenReadStream(5 * 1024 * 1024);
+                var fileContent = new StreamContent(stream);
+                content.Add(fileContent, "file", SelectedImageFile.Name);
+
+                var imageResponse = await Http.PostAsync("/api/Auth/upload", content);
+
+                if (imageResponse.IsSuccessStatusCode)
+                {
+                    var newUrl = await imageResponse.Content.ReadAsStringAsync();
+                    blog.ImageUrl = newUrl.Trim('"'); // Update the blog object with new URL
+                }
+                else
+                {
+                    Console.WriteLine("❌ Image upload failed.");
+                    return; // Stop update if image fails
+                }
+            }
+            // 2. If user clicked "remove" (Preview is null), ensure model is null
+            else if (string.IsNullOrEmpty(PreviewImageUrl))
+            {
+                blog.ImageUrl = null;
+            }
+
+            // 3. Send the Update Request (PUT)
+
+            var jsonString = SystemJsonSerializer.Serialize(blog);
+            var content2 = new StringContent(jsonString, System.Text.Encoding.UTF8, "application/json");
+
+
+            var response = await Http.PutAsync($"/api/Auth/edit-blog/{Id}", content2);
 
             if (response.IsSuccessStatusCode)
             {
-                Console.WriteLine("✅ Blog updated.");
+                SuccessMessage = "✅ Story updated successfully!";
+                ShowSuccessMessage = true;
+                await Task.Delay(2000);
                 Navigation.NavigateTo("/profile");
             }
             else
             {
-                Console.WriteLine("❌ Update failed.");
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"❌ Update failed. Status: {response.StatusCode}, Error: {errorContent}");
             }
         }
         catch (Exception ex)
@@ -155,3 +269,50 @@
         }
     }
 }
+
+<style>
+    .radio-group {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .radio-option {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+    }
+
+        .radio-option:hover {
+            background-color: rgba(0, 0, 0, 0.04);
+        }
+
+        .radio-option input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            cursor: pointer;
+            accent-color: #594ae2;
+        }
+
+    .radio-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        color: #333;
+    }
+
+    .radio-icon {
+        width: 20px;
+        height: 20px;
+        color: #666;
+    }
+
+    .radio-option input[type="radio"]:checked ~ .radio-label .radio-icon {
+        color: #594ae2;
+    }
+</style>

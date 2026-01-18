@@ -15,7 +15,10 @@ namespace BlogApp.Models
         public string AuthorName { get; set; }
 
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime? CreatedAt { get; set; }
+
+        public DateTime? ScheduledPublishDateTime { get; set; }
+        public bool Published { get; set; } = false;
 
         public string ImageUrl { get; set; } = null!;
         public string Visibility { get; set; }  // true for public, false for private
